@@ -1,0 +1,24 @@
+hash: bb6d8e1a0b274c00e846486920e64330103292d75690361bda399fbfe5a827a7
+updated: 2017-07-13T16:22:02.268095631+08:00
+imports:
+- name: github.com/beatrichartz/martini-sockets
+  version: 3eafc7b6445cc1405ff4911e1c5bca4878540eba
+- name: github.com/codegangsta/inject
+  version: 33e0aa1cb7c019ccc3fbe049a8262a6403d30504
+- name: github.com/go-martini/martini
+  version: 22fa46961aabd2665cf3f1343b146d20028f5071
+- name: github.com/go-xorm/builder
+  version: c8871c857d2555fbfbd8524f895be5386d3d8836
+- name: github.com/go-xorm/core
+  version: e9b7412d750de4920b1c7b3ede5a98fd76d38308
+- name: github.com/go-xorm/xorm
+  version: 78795d8f1385c80d5229435a13ef71d4e30435a6
+- name: github.com/mattn/go-sqlite3
+  version: 47fc4e5e9153645da45af6a86a5bce95e63a0f9e
+- name: golang.org/x/net
+  version: f01ecb60fe3835d80d9a0b7b2bf24b228c89260e
+  subpackages:
+  - context
+- name: gopkg.in/yaml.v2
+  version: 1be3d31502d6eabc0dd7ce5b0daab022e14a5538
+testImports: []

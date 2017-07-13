@@ -1,0 +1,12 @@
+package: resist_go
+import:
+- package: github.com/go-martini/martini
+- package: gopkg.in/yaml.v2
+- package: github.com/go-xorm/xorm
+- package: github.com/go-xorm/builder
+- package: github.com/go-xorm/core
+- package: github.com/beatrichartz/martini-sockets
+- package: github.com/mattn/go-sqlite3
+- package: golang.org/x/net
+  subpackages:
+  - context
