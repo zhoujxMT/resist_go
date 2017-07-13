@@ -23,7 +23,7 @@ func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.Clas
 	orm := db.SetEngine(config.DataBase.DbPath)
 	// 配置DATABASES
 	m.Map(orm)
-	// 配置微信开发者配置信息
-	m.Map(config.Wechat)
+	// 全局配置信息
+	m.Map(config)
 	return m
 }
