@@ -5,7 +5,7 @@ import (
 
 	"resist_go/db"
 
-	"github.com/go-martii/martini"
+	"github.com/go-martini/martini"
 )
 
 func main() {
