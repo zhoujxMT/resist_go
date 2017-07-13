@@ -6,6 +6,7 @@ import (
 	"resist_go/db"
 
 	"github.com/go-martini/martini"
+	"github.com/beatrichartz/martini-sockets"
 )
 
 func main() {
