@@ -18,10 +18,14 @@ type Session struct {
 	mValues    map[interface{}]interface{} // session设置的具体值
 }
 
+var manager *WxSessionManager
+
 func NewSessionManager(lifeTime int64) *WxSessionManager {
-	manager := &WxSessionManager{
-		mLifeTime: lifeTime,
-		mSessions: make(map[string]*Session)}
+	if manager == nil {
+		manager = &WxSessionManager{
+			mLifeTime: lifeTime,
+			mSessions: make(map[string]*Session)}
+	}
 	// todo 定时回收
 	go manager.GC()
 	return manager
