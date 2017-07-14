@@ -1,7 +1,7 @@
 package db
 
 import (
-	"fmt"
+	"log"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func (this *User) GetUserByOpenId(openID string) (*User, bool) {
 	user := &User{openID: openID}
 	has, err := orm.Get(user)
 	if err != nil {
-		fmt.Println(err)
+		log.Panic(err)
 	}
 	return user, has
 }
@@ -28,7 +28,7 @@ func (this *User) GetUserByOpenId(openID string) (*User, bool) {
 func (this *User) Insert() bool {
 	_, err := orm.InsertOne(this)
 	if err != nil {
-		fmt.Println(err)
+		log.Panic(err)
 	}
 	return true
 }
@@ -36,7 +36,7 @@ func (this *User) Insert() bool {
 func (this *User) Delete() bool {
 	_, err := orm.Delete(this)
 	if err != nil {
-		fmt.Println(err)
+		log.Panic(err)
 	}
 	return true
 }
@@ -44,7 +44,7 @@ func (this *User) Delete() bool {
 func (this *User) Update() bool {
 	_, err := orm.Id(this.id).Update(this)
 	if err != nil {
-		fmt.Println(err)
+		log.Panic(err)
 	}
 	return true
 }
