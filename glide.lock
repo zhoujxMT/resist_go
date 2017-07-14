@@ -1,5 +1,5 @@
-hash: bb6d8e1a0b274c00e846486920e64330103292d75690361bda399fbfe5a827a7
-updated: 2017-07-13T16:22:02.268095631+08:00
+hash: ee16bc0849268d8d9a2b2f6a67aff1bf824f26505eebaa2e39f551a1430aa416
+updated: 2017-07-13T20:00:38.668561616+08:00
 imports:
 - name: github.com/beatrichartz/martini-sockets
   version: 3eafc7b6445cc1405ff4911e1c5bca4878540eba
@@ -13,6 +13,8 @@ imports:
   version: e9b7412d750de4920b1c7b3ede5a98fd76d38308
 - name: github.com/go-xorm/xorm
   version: 78795d8f1385c80d5229435a13ef71d4e30435a6
+- name: github.com/gorilla/websocket
+  version: ea4d1f681babbce9545c9c5f3d5194a789c89f5b
 - name: github.com/mattn/go-sqlite3
   version: 47fc4e5e9153645da45af6a86a5bce95e63a0f9e
 - name: golang.org/x/net

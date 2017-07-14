@@ -61,5 +61,6 @@ func (manager *WxSessionManager) GC() {
 			delete(manager.mSessions, sessionId)
 		}
 	}
+	// 定时任务回收
 	time.AfterFunc(time.Duration(manager.mLifeTime)*time.Second, func() { manager.GC() })
 }
