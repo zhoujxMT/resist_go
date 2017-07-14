@@ -19,13 +19,15 @@ type Session struct {
 }
 
 var manager *WxSessionManager
+var once sync.Once
 
 func NewSessionManager(lifeTime int64) *WxSessionManager {
-	if manager == nil {
-		manager = &WxSessionManager{
-			mLifeTime: lifeTime,
-			mSessions: make(map[string]*Session)}
-	}
+	once.Do(
+		func() {
+			manager = &WxSessionManager{
+				mLifeTime: lifeTime,
+				mSessions: make(map[string]*Session)}
+		})
 	// todo 定时回收
 	go manager.GC()
 	return manager
