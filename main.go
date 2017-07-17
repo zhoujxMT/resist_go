@@ -2,9 +2,9 @@ package main
 
 import (
 	"resist_go/conf"
-	"resist_go/handle"
-
 	"resist_go/db"
+	"resist_go/handle"
+	"resist_go/middleware"
 
 	"github.com/go-martini/martini"
 )
@@ -20,10 +20,14 @@ func main() {
 
 func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.ClassicMartini {
 	orm := db.SetEngine(config.DataBase.DbPath)
+	sessionManager := middleware.GetSessionManager(7200)
 	// 配置DATABASES
 	m.Map(orm)
 	// 全局配置信息
 	m.Map(config)
+	// 全局Wxssion管理器
+	m.Map(sessionManager)
+
 	return m
 }
 

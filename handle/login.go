@@ -52,6 +52,6 @@ func RegisterWechatUser(req *http.Request) (int, string) {
 		}
 		return 200, string(body)
 	} else {
-		return 500, string("{'info':'insert error'}")
+		return 500, "{'info':'insert error'}"
 	}
 }

@@ -21,7 +21,7 @@ type Session struct {
 var manager *WxSessionManager
 var once sync.Once
 
-func NewSessionManager(lifeTime int64) *WxSessionManager {
+func GetSessionManager(lifeTime int64) *WxSessionManager {
 	once.Do(
 		func() {
 			manager = &WxSessionManager{
