@@ -2,6 +2,7 @@ package main
 
 import (
 	"resist_go/conf"
+	"resist_go/handle"
 
 	"resist_go/db"
 
@@ -13,9 +14,7 @@ func main() {
 	m := martini.Classic()
 	config := conf.CreateConfig("./config/config.yaml")
 	ConfigMartini(m, config)
-	m.Get("/", func() string {
-		return "hello,word"
-	})
+	RouterConfig(m)
 	m.Run()
 }
 
@@ -26,4 +25,12 @@ func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.Clas
 	// 全局配置信息
 	m.Map(config)
 	return m
+}
+
+func RouterConfig(m *martini.ClassicMartini) {
+	m.Get("/", func() string {
+		return "hello,word"
+	})
+	m.Get("/login", handle.HandleCheckUser)
+	m.Get("/registerUser", handle.RegisterWechatUser)
 }
