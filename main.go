@@ -35,6 +35,6 @@ func RouterConfig(m *martini.ClassicMartini) {
 	m.Get("/", func() string {
 		return "hello,word"
 	})
-	m.Get("/login", handle.HandleCheckUser)
-	m.Get("/registerUser", handle.RegisterWechatUser)
+	m.Post("/login", handle.LoginWechatUser)
+	m.Post("/registerUser", handle.RegisterWechatUser)
 }
