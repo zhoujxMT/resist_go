@@ -1,19 +1,28 @@
 package handle
 
 import (
+	"crypto/rand"
 	"encoding/json"
-	"log"
+	"io"
 	"net/http"
 
+	"fmt"
+	"log"
+	"resist_go/conf"
 	"resist_go/db"
-
-	"github.com/go-martini/martini"
+	"resist_go/middleware"
+	"time"
 )
 
-type RepUser struct {
-	openID   string
-	nickName string
+type WxCode struct {
+	code string `json:"code"`
 }
+
+type WxSessionKey struct {
+	openID     string `json:"openid"`
+	sessionKey string `json:"session_key"`
+}
+
 type JsonUserInfo struct {
 	openID    string `json:"openID"`
 	nickName  string `json:"nickName"`
@@ -21,37 +30,62 @@ type JsonUserInfo struct {
 	gender    string `json:"gender"`
 }
 
-func HandleCheckUser(req *http.Request, params martini.Params) (int, string) {
+func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware.WxSessionManager) (int, string) {
+	decoder := json.NewDecoder(req.Body)
+	var wxcode WxCode
 	var user db.User
-	u, has := user.GetUserByOpenId(params["openID"])
-	rspUser := &RepUser{openID: u.OpenID, nickName: u.NickName}
-	body, err := json.Marshal(rspUser)
+	err := decoder.Decode(&wxcode)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err)
 	}
+	// 从微信官方后台中获取用户的sessionkey
+	wxsessionKey := getWxSessionCode(&wxcode, config)
+	// 根据获取到的openID来读取数据库中我们的用户信息
+	u, has := user.GetUserByOpenId(wxsessionKey.openID)
 	if has == true {
-		return 200, string(body)
+		now := time.Now()
+		userUpdateDate := u.UpdateDate
+		subTime := now.Sub(userUpdateDate)
+		days := subTime.Hours() / 24
+		// 如果大于七天，则让小程序重新拉取用户信息进行更新
+		if days > 7 {
+			rspStr := fmt.Sprintf("{'error':'userinfo need to update'}")
+			return 404, rspStr
+		}
+		// 将用户信息存放在session当中,并返回第三方sessionkey，防止官方session在网络中传输
+		thirdKey := createThirdPatyKey(wxsessionKey, u, session)
+		rspStr := fmt.Sprintf("{'thirdKey':'%s'}", thirdKey)
+		return 200, rspStr
 	} else {
-		return 404, "{}"
+		rspStr := fmt.Sprintf("{}")
+		return 404, rspStr
 	}
 }
 
-func RegisterWechatUser(req *http.Request) (int, string) {
-	var jsonUser JsonUserInfo
-	decode := json.NewDecoder(req.Body)
-	decode.Decode(&jsonUser)
-	var user db.User
-	user = db.User{OpenID: jsonUser.openID, NickName: jsonUser.nickName,
-		AvatarURL: jsonUser.avatarURL, Gender: jsonUser.gender}
-	ok := user.Insert()
-	if ok == true {
-		rspUser := &RepUser{openID: user.OpenID, nickName: user.NickName}
-		body, err := json.Marshal(rspUser)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		return 200, string(body)
-	} else {
-		return 500, "{'info':'insert error'}"
+func getWxSessionCode(wxcode *WxCode, config *conf.Config) *WxSessionKey {
+	wxSessionAddr := fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+		config.Wechat.APPID, config.Wechat.AppSecret, wxcode.code)
+	rsp, err := http.Get(wxSessionAddr)
+	if err != nil {
+		log.Fatal(err)
 	}
+	decoder := json.NewDecoder(rsp.Body)
+	var wxsessionKey WxSessionKey
+	err = decoder.Decode(&wxsessionKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &wxsessionKey
+}
+
+func createThirdPatyKey(wxsessionKey *WxSessionKey, u *db.User, session *middleware.WxSessionManager) string {
+	b := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		log.Fatal(err)
+		return ""
+	}
+	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	session.Set(uuid, "userInfo", u)
+	session.Set(uuid, "wxsessionKey", wxsessionKey)
+	return uuid
 }
