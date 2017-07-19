@@ -20,6 +20,7 @@ func main() {
 
 func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.ClassicMartini {
 	orm := db.SetEngine(config.DataBase.DbPath)
+	orm.Sync(new(db.User))
 	sessionManager := middleware.GetSessionManager(7200)
 	// 配置DATABASES
 	m.Map(orm)

@@ -2,6 +2,7 @@ vendor/
 .vscode/
 .*.un~
 *.data
+*.db
 
 #############
 ## Python
