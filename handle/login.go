@@ -60,7 +60,7 @@ func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware
 		// 如果大于七天，则让小程序重新拉取用户信息进行更新
 		if days > 7 {
 			thirdKey := createThirdPatyKey(wxsessionKey, u, session)
-			rspStr := fmt.Sprintf("{'error':'userinfo need to update','thirdKey':'%s'}", thirdKey)
+			rspStr := fmt.Sprintf("{'errorInfo':'userinfo need to update','thirdKey':'%s'}", thirdKey)
 			return 403, rspStr
 		}
 		// 将用户信息存放在session当中,并返回第三方sessionkey，防止官方session在网络中传输
@@ -71,7 +71,7 @@ func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware
 		return 200, rspStr
 	} else {
 		thirdKey := createThirdPatyKey(wxsessionKey, u, session)
-		rspStr := fmt.Sprintf("{'error':'userinfo need to register','thirdKey':'%s'}", thirdKey)
+		rspStr := fmt.Sprintf("{'errorInfo':'userinfo need to register','thirdKey':'%s'}", thirdKey)
 		return 404, rspStr
 	}
 }
