@@ -12,7 +12,7 @@ var orm *xorm.Engine
 func SetEngine(dbPath string) *xorm.Engine {
 	var err error
 	orm, err = xorm.NewEngine("sqlite3", dbPath)
-	if err == nil {
+	if err != nil {
 		panic(err)
 	}
 	orm.TZLocation = time.Local
