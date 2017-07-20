@@ -80,7 +80,7 @@ func (room *Room) VoteDisVote(clientName string) {
 	room.DisVote.Add(clientName)
 }
 
-// 投机投票数，参数为模式，mission(任务执行模式)|team(组队模式) 返回如果味true则同意多，如果为fale则反对多,
+// 统计投票数，参数为模式，mission(任务执行模式)|team(组队模式) 返回如果味true则同意多，如果为fale则反对多,
 func (room *Room) CountVote(modle string) (bool, bool) {
 	room.Lock.Lock()
 	defer room.Lock.Unlock()
