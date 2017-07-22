@@ -1,35 +1,38 @@
 package handle
 
 import (
+	"container/list"
 	"math/rand"
 	"sync"
 )
 
 type Room struct {
-	Lock           sync.Mutex         // 互斥锁，保证线程安全
-	RoomSize       int                // 房间人数
-	Name           string             // 创建房间时的名字，创建时为uuid，并分享时候将该uuid带上
-	GameNum        int                // 房间当前局数
-	GoodManWins    int                // 抵抗组织成员获胜局数
-	BadGuysWins    int                // 间谍成员获胜局数
-	TurnsTalkPoint int                // 轮流发言指针
-	DisVote        *VoteSet           // 反对票仓
-	AgrVote        *VoteSet           // 赞成票仓
-	Captains       []string           // 队长池
-	Clients        map[string]*Client // 客户端管理池
+	Lock          sync.Mutex         // 互斥锁，保证线程安全
+	RoomSize      int                // 房间人数
+	Name          string             // 创建房间时的名字，创建时为uuid，并分享时候将该uuid带上
+	GameNum       int                // 房间当前局数
+	GoodManWins   int                // 抵抗组织成员获胜局数
+	BadGuysWins   int                // 间谍成员获胜局数
+	TurnsTalkList *list.List         // 轮流发言链表
+	DisVote       *VoteSet           // 反对票仓
+	AgrVote       *VoteSet           // 赞成票仓
+	Captains      []string           // 队长链表
+	Clients       map[string]*Client // 客户端管理池
 }
 
 func CreteRoom(roomName string, roomSize int) *Room {
-	dismissVote := NewVote() // 反对票仓
-	agreeVote := NewVote()   // 同意票仓
+	dismissVote := NewVote()   // 反对票仓
+	agreeVote := NewVote()     // 同意票仓
+	turnTalkList := list.New() // 轮流发言链表
 	room := Room{
-		Lock:     sync.Mutex{},
-		Name:     roomName,
-		DisVote:  dismissVote,
-		AgrVote:  agreeVote,
-		Clients:  map[string]*Client{},
-		RoomSize: roomSize,
-		Captains: []string{}}
+		Lock:          sync.Mutex{},
+		Name:          roomName,
+		DisVote:       dismissVote,
+		AgrVote:       agreeVote,
+		Clients:       map[string]*Client{},
+		RoomSize:      roomSize,
+		TurnsTalkList: turnTalkList,
+		Captains:      []string{}}
 	return &room
 }
 
@@ -38,8 +41,14 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 	room.Lock.Lock()
 	defer room.Lock.Unlock()
 	if len(room.ClientNameList()) < room.RoomSize {
-		room.Clients[clientName] = client
+		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
+		// 将clientName加入到发言队列中去
+		if len(room.ClientNameList()) == room.RoomSize {
+			room.TurnsTalkList.PushBack("END")
+		} else {
+			room.TurnsTalkList.PushBack(clientName)
+		}
 		return true
 	} else {
 		return false
@@ -51,9 +60,21 @@ func (room *Room) RemoveClient(clientName string) {
 	room.Lock.Lock()
 	defer room.Lock.Unlock()
 	delete(room.Clients, clientName)
-	for index, captains := range room.Captains {
-		if captains == clientName {
-			room.Captains = append(room.Captains[:index], room.Captains[index+1:]...)
+	var turnsTalkNext *list.Element
+	// 删除队长备选
+	for i := range room.Captains {
+		if room.Captains[i] == clientName {
+			room.Captains = append(room.Captains[:i], room.Captains[i+1:]...)
+		}
+	}
+	// 将该玩家移除发言队列
+	for te := room.TurnsTalkList.Front(); te != nil; {
+		if te.Value.(string) == clientName {
+			turnsTalkNext = te.Next()
+			room.TurnsTalkList.Remove(te)
+			te = turnsTalkNext
+		} else {
+			te = te.Next()
 		}
 	}
 }
@@ -119,17 +140,9 @@ func (room *Room) AddGameNum() bool {
 func (room *Room) TakeTurnsClientName() string {
 	room.Lock.Lock()
 	defer room.Lock.Unlock()
-	if room.TurnsTalkPoint <= room.RoomSize {
-		clientList := room.ClientNameList()
-		clientName := clientList[room.TurnsTalkPoint]
-		room.TurnsTalkPoint++
-		return clientName
-	} else if room.TurnsTalkPoint == room.RoomSize+1 {
-		room.TurnsTalkPoint = 0
-		return "end"
-	} else {
-		return "error"
-	}
+	cliNmae := room.TurnsTalkList.Front()
+	room.TurnsTalkList.MoveToBack(cliNmae)
+	return cliNmae.Value.(string)
 }
 
 // 随机获取队长
