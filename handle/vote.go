@@ -12,8 +12,8 @@ type VoteSet struct {
 
 func NewVote() *VoteSet {
 	return &VoteSet{
-		m: map[string]bool{},
-	}
+		m:       map[string]bool{},
+		RWMutex: sync.RWMutex{}}
 }
 
 func (vote *VoteSet) Add(clientName string) {

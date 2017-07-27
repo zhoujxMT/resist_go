@@ -55,6 +55,16 @@ func (manager *WxSessionManager) Get(thirdPartyKey string, key interface{}) (int
 	return nil, false
 }
 
+func (manager *WxSessionManager) AuthUser(thirdPartyKey string) bool {
+	manager.mLock.RLock()
+	defer manager.mLock.RUnlock()
+	if _, ok := manager.mSessions[thirdPartyKey]; ok {
+		return true
+	} else {
+		return false
+	}
+}
+
 func (manager *WxSessionManager) GC() {
 	manager.mLock.Lock()
 	defer manager.mLock.Unlock()

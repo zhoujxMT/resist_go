@@ -20,7 +20,7 @@ type WxCode struct {
 }
 
 type WxSessionKey struct {
-	openID     string `json:"openid"`
+	openID     string `json:"openId"`
 	sessionKey string `json:"session_key"`
 }
 

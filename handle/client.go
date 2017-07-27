@@ -10,4 +10,12 @@ type Client struct {
 }
 
 type Message struct {
+	From      string `json:"from"`
+	EventName string `json:"eventName"`
+	Body      string `json:"body"`
+	UserInfo  struct {
+		NickName  string `json:"nickName"`
+		AvatarUrl string `json:"avatarUrl"`
+		Role      string `json:"role"`
+	}
 }
