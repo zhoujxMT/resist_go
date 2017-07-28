@@ -1,10 +1,15 @@
 package handle
 
+import (
+	"resist_go/db"
+)
+
 type Client struct {
-	Name      string          // 客户端链接的名字，这里一般为3rdsession的字符串
+	Name      string // 客户端链接的名字，这里一般为3rdsession的字符串
+	UserInfo  db.User
 	in        <-chan *Message // 传进来的消息管道
 	out       chan<- *Message // 发出去的消息管道
-	done      <-chan *bool    // 结束的bool
+	done      <-chan bool     // 结束的bool
 	err       <-chan error    // 错误管道
 	diconnect chan<- int      // 断开链接的管道
 }
@@ -15,7 +20,6 @@ type Message struct {
 	Body      string `json:"body"`
 	UserInfo  struct {
 		NickName  string `json:"nickName"`
-		AvatarUrl string `json:"avatarUrl"`
-		Role      string `json:"role"`
-	}
+		AvatarURL string `json:"avatarUrl"`
+	} `json:"userInfo"`
 }
