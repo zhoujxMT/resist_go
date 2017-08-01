@@ -36,7 +36,7 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 			room.BroadcastAll(choiceNextSpeecher)
 		}
 	// 队长投票
-	case "TEAVOTE":
+	case "TEAMVOTE":
 		if msg.Body == "True" {
 			room.VoteAgreeVote(cli.Name)
 		} else {
