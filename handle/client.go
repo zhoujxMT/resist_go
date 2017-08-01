@@ -14,6 +14,12 @@ type Client struct {
 	diconnect chan<- int      // 断开链接的管道
 }
 
+type RoomUserInfo struct {
+	Name      string `json:"name"`
+	NickName  string `json:"nickName"`
+	AvatarUrl string `json:"avatarUrl"`
+}
+
 type Message struct {
 	From      string `json:"from"`
 	EventName string `json:"eventName"`
@@ -26,4 +32,7 @@ type Message struct {
 		NickName  string `json:"nickName"`
 		AvatarURL string `json:"avatarUrl"`
 	} `json:"userInfo"`
+	UserList []RoomUserInfo `json:"userList"`
+	TeamSize int            `json:"teamSize"`
+	TeamList []string       `json:"teamList"`
 }

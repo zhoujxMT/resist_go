@@ -58,6 +58,7 @@ func (room *Room) InitRoomGame() {
 			if cliName == badManList[badmanpoint] {
 				msg.RoleInfo.Role = "BADMAN"
 				msg.RoleInfo.Captain = captaignsName
+				msg.TeamList = badManList
 				cli.out <- msg
 			} else {
 				msg.RoleInfo.Role = "GOODMAN"
@@ -171,6 +172,33 @@ func (room *Room) CountVote(modle string) (bool, bool) {
 	}
 }
 
+// 获取所有投票数，第一个为同意第二个为反对
+func (room *Room) GetVotes() (int, int) {
+	room.Lock()
+	defer room.Unlock()
+	agrvotes := room.AgrVote.Len()
+	disvotes := room.DisVote.Len()
+	return agrvotes, disvotes
+}
+
+func (room *Room) GetMissionConfig() int {
+	room.Lock()
+	defer room.Unlock()
+	switch room.RoomSize {
+	case 5:
+		missionNum := [5]int{2, 3, 2, 3, 3}
+		return missionNum[room.GameNum]
+	case 6:
+		missionNum := [5]int{2, 3, 4, 3, 4}
+		return missionNum[room.GameNum]
+	case 7:
+		missionNum := [5]int{2, 3, 3, 4, 4}
+		return missionNum[room.GameNum]
+	default:
+		return 2
+	}
+}
+
 // 增加局数
 func (room *Room) AddGameNum() bool {
 	room.Lock()
@@ -254,6 +282,15 @@ func (room *Room) BroadcastMessage(msg *Message, client *Client) {
 	}
 }
 
+func (room *Room) BroadcastAll(msg *Message) {
+	room.Lock()
+	defer room.Unlock()
+	for _, cli := range room.Clients {
+		cli.out <- msg
+	}
+
+}
+
 // (room *Room) SendMessage ...
 func (room *Room) SendMessage(msg *Message, clientName string) {
 	room.Lock()
@@ -268,4 +305,11 @@ func (room *Room) ChangeRoomStash(stash string) {
 	room.Lock()
 	defer room.Unlock()
 	room.Stash = stash
+}
+
+func (room *Room) GetClientByName(name string) *Client {
+	room.Lock()
+	defer room.Unlock()
+	cli := room.Clients[name]
+	return cli
 }
