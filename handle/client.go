@@ -18,7 +18,11 @@ type Message struct {
 	From      string `json:"from"`
 	EventName string `json:"eventName"`
 	Body      string `json:"body"`
-	UserInfo  struct {
+	RoleInfo  struct {
+		Role    string `json:"role"`
+		Captain string `json:"captain"`
+	} `json:"roleInfo"`
+	UserInfo struct {
 		NickName  string `json:"nickName"`
 		AvatarURL string `json:"avatarUrl"`
 	} `json:"userInfo"`

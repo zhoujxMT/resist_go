@@ -37,19 +37,65 @@ func CreteRoom(roomName string, roomSize int) *Room {
 	return &room
 }
 
+// 初始化游戏信息
+func (room *Room) InitRoomGame() {
+	// 随机选择队长
+	captaignsName, _ := room.TakeRandCaptains()
+
+	badManList := []string{}
+	// 分配坏蛋
+	clientList := room.ClientNameList()
+	// 初始化信息
+	msg := &Message{From: "SYSTEM", EventName: "INIT"}
+	for i := 0; i <= 2; i++ {
+		point := rand.Intn(len(clientList))
+		badManList = append(badManList, clientList[point])
+		clientList = append(clientList[:point], clientList[point+1:]...)
+	}
+	// 根据分配选择给各个客户端返回信息
+	for cliName, cli := range room.Clients {
+		for badmanpoint := range badManList {
+			if cliName == badManList[badmanpoint] {
+				msg.RoleInfo.Role = "BADMAN"
+				msg.RoleInfo.Captain = captaignsName
+				cli.out <- msg
+			} else {
+				msg.RoleInfo.Role = "GOODMAN"
+				msg.RoleInfo.Captain = captaignsName
+				cli.out <- msg
+			}
+		}
+	}
+}
+
 // 添加房间客户端
 func (room *Room) AddClient(clientName string, client *Client) bool {
 	room.Lock()
 	defer room.Unlock()
-	if len(room.ClientNameList()) < room.RoomSize {
+	// 通知其他用户发送
+	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
+	joinMsg.UserInfo.NickName = client.UserInfo.NickName
+	joinMsg.UserInfo.AvatarURL = client.UserInfo.AvatarURL
+	room.BroadcastMessage(joinMsg, client)
+	if len(room.ClientNameList()) < room.RoomSize-1 {
 		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
 		// 将clientName加入到发言队列中去
-		if len(room.ClientNameList()) == room.RoomSize {
-			room.TurnsTalkList.PushBack("END")
-		} else {
-			room.TurnsTalkList.PushBack(clientName)
+		room.TurnsTalkList.PushBack(clientName)
+		return true
+	} else if len(room.ClientNameList()) == room.RoomSize-1 {
+		room.Clients[clientName] = client
+		room.Captains = append(room.Captains, clientName)
+		room.TurnsTalkList.PushBack(clientName)
+		// 增加一个发言队列的标记
+		room.TurnsTalkList.PushBack("END")
+		// 发送一个标记告诉客户端人满了
+		for _, cli := range room.Clients {
+			readMsg := &Message{From: "System", EventName: "READY"}
+			cli.out <- readMsg
 		}
+		// 初始化第一局游戏的信息
+		room.InitRoomGame()
 		return true
 	} else {
 		return false
