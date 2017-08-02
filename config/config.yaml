@@ -1,5 +1,5 @@
 db:
   db_path: ./data.db
 wechat:
-  appid: wulitaotao
-  appsecret: wulitaotao
+  appid: wxf73ecd87e8384b7a
+  appsecret: a4b094c0eebea8411d789a09f0a945aa

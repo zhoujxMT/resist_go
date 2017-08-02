@@ -3,10 +3,11 @@ package handle
 import (
 	"sync"
 
-	"github.com/go-martini/martini"
 	"net/http"
 	"resist_go/db"
 	"resist_go/middleware"
+
+	"github.com/go-martini/martini"
 )
 
 type Chat struct {
@@ -72,6 +73,7 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 				// 处理错误消息
 			case msg := <-cli.in:
 				// 消息处理器
+				ResistGameHandle(room, msg, &cli)
 			case <-cli.done:
 				// 处理掉线
 				room.RemoveClient(cli.Name)

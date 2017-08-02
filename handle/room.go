@@ -37,19 +37,66 @@ func CreteRoom(roomName string, roomSize int) *Room {
 	return &room
 }
 
+// 初始化游戏信息
+func (room *Room) InitRoomGame() {
+	// 随机选择队长
+	captaignsName, _ := room.TakeRandCaptains()
+
+	badManList := []string{}
+	// 分配坏蛋
+	clientList := room.ClientNameList()
+	// 初始化信息
+	msg := &Message{From: "SYSTEM", EventName: "INIT"}
+	for i := 0; i <= 2; i++ {
+		point := rand.Intn(len(clientList))
+		badManList = append(badManList, clientList[point])
+		clientList = append(clientList[:point], clientList[point+1:]...)
+	}
+	// 根据分配选择给各个客户端返回信息
+	for cliName, cli := range room.Clients {
+		for badmanpoint := range badManList {
+			if cliName == badManList[badmanpoint] {
+				msg.RoleInfo.Role = "BADMAN"
+				msg.RoleInfo.Captain = captaignsName
+				msg.TeamList = badManList
+				cli.out <- msg
+			} else {
+				msg.RoleInfo.Role = "GOODMAN"
+				msg.RoleInfo.Captain = captaignsName
+				cli.out <- msg
+			}
+		}
+	}
+}
+
 // 添加房间客户端
 func (room *Room) AddClient(clientName string, client *Client) bool {
 	room.Lock()
 	defer room.Unlock()
-	if len(room.ClientNameList()) < room.RoomSize {
+	// 通知其他用户发送
+	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
+	joinMsg.UserInfo.NickName = client.UserInfo.NickName
+	joinMsg.UserInfo.AvatarURL = client.UserInfo.AvatarURL
+	room.BroadcastMessage(joinMsg, client)
+	if len(room.ClientNameList()) < room.RoomSize-1 {
 		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
 		// 将clientName加入到发言队列中去
-		if len(room.ClientNameList()) == room.RoomSize {
-			room.TurnsTalkList.PushBack("END")
-		} else {
-			room.TurnsTalkList.PushBack(clientName)
+		room.TurnsTalkList.PushBack(clientName)
+		return true
+	} else if len(room.ClientNameList()) == room.RoomSize-1 {
+		room.Clients[clientName] = client
+		room.Captains = append(room.Captains, clientName)
+		room.TurnsTalkList.PushBack(clientName)
+		// 增加一个发言队列的标记
+		room.TurnsTalkList.PushBack("END")
+		// 发送一个标记告诉客户端人满了
+		for _, cli := range room.Clients {
+			readMsg := &Message{From: "System", EventName: "READY"}
+			cli.out <- readMsg
 		}
+		// 初始化第一局游戏的信息
+		room.InitRoomGame()
 		return true
 	}else if len(room.ClientNameList() == room.RoomSize){
 		startMsg := &Message{From:"SYSTEM", EventName:"Start",Body:"" }
@@ -127,6 +174,33 @@ func (room *Room) CountVote(modle string) (bool, bool) {
 		}
 	} else {
 		return false, false
+	}
+}
+
+// 获取所有投票数，第一个为同意第二个为反对
+func (room *Room) GetVotes() (int, int) {
+	room.Lock()
+	defer room.Unlock()
+	agrvotes := room.AgrVote.Len()
+	disvotes := room.DisVote.Len()
+	return agrvotes, disvotes
+}
+
+func (room *Room) GetMissionConfig() int {
+	room.Lock()
+	defer room.Unlock()
+	switch room.RoomSize {
+	case 5:
+		missionNum := [5]int{2, 3, 2, 3, 3}
+		return missionNum[room.GameNum]
+	case 6:
+		missionNum := [5]int{2, 3, 4, 3, 4}
+		return missionNum[room.GameNum]
+	case 7:
+		missionNum := [5]int{2, 3, 3, 4, 4}
+		return missionNum[room.GameNum]
+	default:
+		return 2
 	}
 }
 
@@ -213,6 +287,15 @@ func (room *Room) BroadcastMessage(msg *Message, client *Client) {
 	}
 }
 
+func (room *Room) BroadcastAll(msg *Message) {
+	room.Lock()
+	defer room.Unlock()
+	for _, cli := range room.Clients {
+		cli.out <- msg
+	}
+
+}
+
 // (room *Room) SendMessage ...
 func (room *Room) SendMessage(msg *Message, clientName string) {
 	room.Lock()
@@ -227,4 +310,11 @@ func (room *Room) ChangeRoomStash(stash string) {
 	room.Lock()
 	defer room.Unlock()
 	room.Stash = stash
+}
+
+func (room *Room) GetClientByName(name string) *Client {
+	room.Lock()
+	defer room.Unlock()
+	cli := room.Clients[name]
+	return cli
 }

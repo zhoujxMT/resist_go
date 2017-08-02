@@ -6,6 +6,7 @@ import (
 	"resist_go/handle"
 	"resist_go/middleware"
 
+	"github.com/beatrichartz/martini-sockets"
 	"github.com/go-martini/martini"
 )
 
@@ -29,6 +30,7 @@ func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.Clas
 	m.Map(config)
 	// 全局Wxssion管理器
 	m.Map(sessionManager)
+	handle.GetChat()
 
 	return m
 }
@@ -39,4 +41,5 @@ func RouterConfig(m *martini.ClassicMartini) {
 	})
 	m.Post("/login", handle.LoginWechatUser)
 	m.Post("/registerUser", handle.RegisterWechatUser)
+	m.Get("/game/room/:name", sockets.JSON(handle.Message{}), handle.ResistSocket)
 }
