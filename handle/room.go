@@ -51,7 +51,12 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 			room.TurnsTalkList.PushBack(clientName)
 		}
 		return true
-	} else {
+	}else if len(room.ClientNameList() == room.RoomSize){
+		startMsg := &Message{From:"SYSTEM", EventName:"Start",Body:"" }
+		for _, cli := range room.Clients {
+			cli.out <- startMsg
+		}
+	}else {
 		return false
 	}
 }
