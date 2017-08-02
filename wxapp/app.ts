@@ -21,7 +21,21 @@ class WeAppClass implements WeApp {
         } else {
             //调用登录接口
             wx.login({
-                success: () => {
+                success: (res) => {
+                    wx.request({
+                        url:"https://yuchenyang1994.natapp4.cc/login",
+                        method: "POST",
+                        data: {
+                            code:res.code
+                        },
+                        success: (success_res, statusCode?,header?) =>{
+                            if (statusCode == 200) {
+                                console.log("调用成功")
+                            }else{
+                                console.log("调用失败")
+                            }
+                        },
+                    });
                     wx.getUserInfo({
                         success: res => {
                             this.globalData.userInfo = res.userInfo;
