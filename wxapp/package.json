@@ -1,0 +1,15 @@
+{
+  "name": "resist_go",
+  "version": "1.0.0",
+  "description": "抵抗组织Go",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yuchenyang1994",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-typescript": "^3.2.1",
+    "typescript": "^2.4.2"
+  }
+}
