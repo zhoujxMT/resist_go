@@ -1,5 +1,5 @@
 import { WeApp } from './common/common'
-import * as Promise from './plugin/es6-promise.js'
+import {Promise}from './plugin/es6-promise.js'
 
 function _wxLogin() {
     return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ function _wxLogin() {
 function _loginServer(code: string) {
     return new Promise((resolve: (res) => void, reject: (res) => void) => {
         wx.request({
-            url: "https://yuchenyang1994.natapp4.cc/login",
+            url: "http://127.0.0.1:3000/login",
             method: "POST",
             data: {
                 code: code
@@ -37,11 +37,11 @@ function _loginServer(code: string) {
 function _registerServer(userRes: wx.GetUserInfoResult, thirdKey: string) {
     return new Promise((resolve, reject) => {
         wx.request({
-            url: "https://yuchenyang1994.natapp4.cc/registerUser",
+            url: "http://127.0.0.1:3000/registerUser",
             method: "POST",
             data: {
                 iv: userRes.iv,
-                encryptedData: userRes.encryptData,
+                encryptedData: userRes.encryptedData,
                 thirdKey: thirdKey
             },
             success: res => {
@@ -100,11 +100,11 @@ class WeAppClass implements WeApp {
             temp.userRes = res
             return _loginServer(temp.code)
         }).then((res:wx.RequestResult)=>{
-            console.log("哇哈哈")
             this.globalData.thirdKey = res.data.thirdKey
         },(res:wx.RequestResult) =>{
-            console.log("哇哈哈2")
+            console.log(temp.userRes)
             this.globalData.thirdKey = res.data.thirdKey
+            console.log(res.data)
             return _registerServer(temp.userRes, res.data.thirdKey)
         })
 

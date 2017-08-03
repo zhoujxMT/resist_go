@@ -98,12 +98,13 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 		// 初始化第一局游戏的信息
 		room.InitRoomGame()
 		return true
-	}else if len(room.ClientNameList() == room.RoomSize){
-		startMsg := &Message{From:"SYSTEM", EventName:"Start",Body:"" }
+	} else if len(room.ClientNameList()) == room.RoomSize {
+		startMsg := &Message{From: "SYSTEM", EventName: "Start", Body: ""}
 		for _, cli := range room.Clients {
 			cli.out <- startMsg
 		}
-	}else {
+		return true
+	} else {
 		return false
 	}
 }

@@ -2059,7 +2059,7 @@ declare namespace wx {
         /**
          * 包括敏感数据在内的完整用户信息的加密数据，详细见加密数据解密算法
          */
-        encryptData: string;
+        encryptedData: string;
         // 加密向量
         iv: string;
     }
