@@ -1,47 +1,69 @@
 import { WeApp } from './common/common'
-import * as Promise from './plugin/bluebird.js'
+import * as Promise from './plugin/es6-promise.js'
+
+function _wxLogin() {
+    return new Promise((resolve, reject) => {
+        wx.login({
+            success: (res) => {
+                if (res.code) {
+                    resolve(res.code)
+                } else {
+                    reject(res.errMsg)
+                }
+            }
+        })
+    })
+}
+
 function _loginServer(code: string) {
-        return new Promise((resolve, reject) => {
-            wx.request({
-                url: "https://yuchenyang1994.natapp4.cc/login",
-                method: "POST",
-                data: {
-                    code: code
-                },
-                success: res => {
-                        resolve(res)
-                    }
-            })
-        })
-    }
-
- function _registerServer(userRes: wx.GetUserInfoResult, thirdKey: string) {
-        return new Promise((resolve, reject) => {
-            wx.request({
-                url: "https://yuchenyang1994.natapp4.cc/registerUser",
-                method: "POST",
-                data: {
-                    iv: userRes.iv,
-                    encryptedData: userRes.encryptData,
-                    thirdKey: thirdKey
-                },
-                success: res => {
+    return new Promise((resolve: (res) => void, reject: (res) => void) => {
+        wx.request({
+            url: "https://yuchenyang1994.natapp4.cc/login",
+            method: "POST",
+            data: {
+                code: code
+            },
+            success: (res) => {
+                if (res.statusCode == 200){
                     resolve(res)
+                }else{
+                    reject(res)
                 }
-            })
+            },
         })
-    }
+    })
+}
 
- function _promiseGetUserInfo() {
-        return new Promise((resolve, reject) => {
-            wx.getUserInfo({
-                withCredentials: true,
-                success: res => {
-                    resolve(res)
-                }
-            })
+function _registerServer(userRes: wx.GetUserInfoResult, thirdKey: string) {
+    return new Promise((resolve, reject) => {
+        wx.request({
+            url: "https://yuchenyang1994.natapp4.cc/registerUser",
+            method: "POST",
+            data: {
+                iv: userRes.iv,
+                encryptedData: userRes.encryptData,
+                thirdKey: thirdKey
+            },
+            success: res => {
+                resolve(res)
+            },
+            fail: (res) => {
+                reject(res)
+            }
         })
-    }
+    })
+}
+
+function _promiseGetUserInfo() {
+    return new Promise((resolve, reject) => {
+        wx.getUserInfo({
+            withCredentials: true,
+            success: res => {
+                resolve(res)
+            }
+        })
+    })
+}
 
 class WeAppClass implements WeApp {
 
@@ -49,7 +71,7 @@ class WeAppClass implements WeApp {
         return {
             userInfo: null,
             thirdKey: null,
-            userRes:null
+            userRes: null
         }
     }
 
@@ -58,42 +80,32 @@ class WeAppClass implements WeApp {
         const logs = wx.getStorageSync('logs') || [];
         logs.unshift(Date.now());
         wx.setStorageSync('logs', logs);
+        this.loginResistServer()
     }
 
-    private _wxLogin() {
-        return new Promise((resolve, reject) => {
-            wx.login({
-                success: (res) => {
-                    if (res.code) {
-                        resolve(res.code)
-                    } else {
-                        reject(res.errMsg)
-                    }
-                }
-            })
-        })
-    }
 
-    
+
+
 
     public loginResistServer(): void {
-        this._wxLogin().then((code: string) => {
-            return _loginServer(code)
-        }).then((res:wx.RequestResult) => {
-            console.log("?")
-            if (res.statusCode == 200){
-                this.globalData.thirdKey = res.data.thirdKey
-            }else{
-                return _promiseGetUserInfo()
-            }
-        }).then((res:wx.GetUserInfoResult) => {
-            console.log(3)
-            this.globalData.userInfo=res.userInfo
-            return _registerServer(res,this.globalData.thirdKey)
+        var temp = {
+            code: null,
+            userRes:null
+        }
+        _wxLogin().then((code: string) => {
+            temp.code = code
+            return _promiseGetUserInfo()
+        }).then((res: wx.GetUserInfoResult) => {
+            this.globalData.userInfo = res.userInfo
+            temp.userRes = res
+            return _loginServer(temp.code)
         }).then((res:wx.RequestResult)=>{
-            console.log(res)
-        }, (res:wx.RequestResult)=>{
-            console.log(res)
+            console.log("哇哈哈")
+            this.globalData.thirdKey = res.data.thirdKey
+        },(res:wx.RequestResult) =>{
+            console.log("哇哈哈2")
+            this.globalData.thirdKey = res.data.thirdKey
+            return _registerServer(temp.userRes, res.data.thirdKey)
         })
 
     }
@@ -101,8 +113,6 @@ class WeAppClass implements WeApp {
     public getUserInfo(cb: (info: wx.IData) => void): void {
         if (this.globalData.userInfo) {
             typeof cb == "function" && cb(this.globalData.userInfo);
-        } else {
-            this.loginResistServer()
         }
     }
 }

@@ -197,6 +197,10 @@ declare namespace wx {
          * 收到开发者服务成功返回的回调函数，res = {data: '开发者服务器返回的内容'}
          */
         success?: (res?: RequestResult) => void;
+        /**
+         * 请求失败 
+         */
+        fail?:(res?:RequestResult) => void;
     }
 
     /**
