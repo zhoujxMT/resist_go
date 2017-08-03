@@ -13,9 +13,8 @@ type WxSessionManager struct {
 
 // session 内容
 type Session struct {
-	lastTime   time.Time                   // 登录的时间已用来回收
-	wxSessions string                      // 微信的key
-	mValues    map[interface{}]interface{} // session设置的具体值
+	lastTime time.Time              // 登录的时间已用来回收
+	mValues  map[string]interface{} // session设置的具体值
 }
 
 var manager *WxSessionManager
@@ -34,17 +33,22 @@ func GetSessionManager(lifeTime int64) *WxSessionManager {
 
 }
 
-func (manager *WxSessionManager) Set(thirdPartyKey string, key interface{}, value interface{}) {
+func (manager *WxSessionManager) Set(thirdPartyKey string, key string, value interface{}) {
 	//加锁
 	manager.mLock.Lock()
 	defer manager.mLock.Unlock()
-	if session, ok := manager.mSessions[thirdPartyKey]; ok {
+	session, ok := manager.mSessions[thirdPartyKey]
+	if ok {
 		session.mValues[key] = value
+	} else {
+		session := &Session{lastTime: time.Now(), mValues: make(map[string]interface{})}
+		session.mValues[key] = value
+		manager.mSessions[thirdPartyKey] = session
 	}
 
 }
 
-func (manager *WxSessionManager) Get(thirdPartyKey string, key interface{}) (interface{}, bool) {
+func (manager *WxSessionManager) Get(thirdPartyKey string, key string) (interface{}, bool) {
 	manager.mLock.RLock()
 	defer manager.mLock.RUnlock()
 	if session, ok := manager.mSessions[thirdPartyKey]; ok {

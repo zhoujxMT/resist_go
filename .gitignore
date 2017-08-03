@@ -21,3 +21,8 @@ var/
 sdist/
 develop-eggs/
 .installed.cfg
+
+# web
+wxapp/node_modules/
+wxapp/*.js
+wxapp/dist/

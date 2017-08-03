@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http"
 
 	"fmt"
@@ -16,28 +17,28 @@ import (
 )
 
 type WxCode struct {
-	code string `json:"code"`
+	Code string `json:"code"`
 }
 
 type WxSessionKey struct {
-	openID     string `json:"openId"`
-	sessionKey string `json:"session_key"`
+	OpenID     string `json:"openid"`
+	SessionKey string `json:"session_key"`
 }
 
 type WechatUserData struct {
-	iv            string `json:"iv"`            // 加密初始向量
-	encryptedData string `json:"encryptedData"` // 加密数据
-	thirdKey      string `json:"thirdKey"`      // 第三方key
+	Iv            string `json:"iv"`            // 加密初始向量
+	EncryptedData string `json:"encryptedData"` // 加密数据
+	ThirdKey      string `json:"thirdKey"`      // 第三方key
 }
 
 type JsonUserInfo struct {
-	openID    string `json:"openId"`
-	nickName  string `json:"nickName"`
-	gender    int    `json:"gender"`
-	city      int    `json:"city"`
-	province  string `json:"province"`
-	country   string `json:"country"`
-	avatarUrl string `json:"avatarurl"`
+	OpenID    string `json:"openId"`
+	NickName  string `json:"nickName"`
+	Gender    int    `json:"gender"`
+	City      int    `json:"city"`
+	Province  string `json:"province"`
+	Country   string `json:"country"`
+	AvatarUrl string `json:"avatarurl"`
 }
 
 func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware.WxSessionManager) (int, string) {
@@ -51,7 +52,7 @@ func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware
 	// 从微信官方后台中获取用户的sessionkey
 	wxsessionKey := getWxSessionCode(&wxcode, config)
 	// 根据获取到的openID来读取数据库中我们的用户信息
-	u, has := user.GetUserByOpenId(wxsessionKey.openID)
+	u, has := user.GetUserByOpenId(wxsessionKey.OpenID)
 	if has == true {
 		now := time.Now()
 		userUpdateDate := u.UpdateDate
@@ -71,7 +72,7 @@ func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware
 		return 200, rspStr
 	} else {
 		thirdKey := createThirdPatyKey(wxsessionKey, u, session)
-		rspStr := fmt.Sprintf("{'errorInfo':'userinfo need to register','thirdKey':'%s'}", thirdKey)
+		rspStr := fmt.Sprintf(`{"errorInfo":"userinfo need to register","thirdKey":"%s"}`, thirdKey)
 		return 404, rspStr
 	}
 }
@@ -83,13 +84,14 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 	if err != nil {
 		log.Fatal(err)
 	}
-	wxsession, has := session.Get(wechatUserData.thirdKey, "thirdKey")
+	wxsession, has := session.Get(wechatUserData.ThirdKey, "wxsessionKey")
 	// 转换为wxsession
-	var twxsession = wxsession.(WxSessionKey)
+	var twxsession = wxsession.(*WxSessionKey)
+	fmt.Println(twxsession)
 	if has == true {
 		// 解密加密信息
-		wxbiz := util.WxBizDataCrypt{AppID: config.Wechat.APPID, SessionKey: twxsession.sessionKey}
-		jsonUserInfo, err := wxbiz.Decrypt(wechatUserData.encryptedData, wechatUserData.iv, true)
+		wxbiz := util.WxBizDataCrypt{AppID: config.Wechat.APPID, SessionKey: twxsession.SessionKey}
+		jsonUserInfo, err := wxbiz.Decrypt(wechatUserData.EncryptedData, wechatUserData.Iv, true)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -98,37 +100,37 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 		json.Unmarshal([]byte(tJSONUserInfo), &userinfo)
 		// 查看是更新还是插入
 		var user db.User
-		u, has := user.GetUserByOpenId(userinfo.openID)
+		u, has := user.GetUserByOpenId(userinfo.OpenID)
 		if has == true {
-			u.AvatarURL = userinfo.avatarUrl
-			u.NickName = userinfo.nickName
+			u.AvatarURL = userinfo.AvatarUrl
+			u.NickName = userinfo.NickName
 			var gender string
-			if userinfo.gender == 0 {
+			if userinfo.Gender == 0 {
 				gender = "神秘性别"
-			} else if userinfo.gender == 1 {
+			} else if userinfo.Gender == 1 {
 				gender = "男"
 			} else {
 				gender = "女"
 			}
 			u.Gender = gender
 			u.Update()
-			session.Set(wechatUserData.thirdKey, "userInfo", u)
-			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.thirdKey)
+			session.Set(wechatUserData.ThirdKey, "userInfo", u)
+			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.ThirdKey)
 			return 200, rsp
 
 		} else {
 			var gender string
-			if userinfo.gender == 0 {
+			if userinfo.Gender == 0 {
 				gender = "神秘性别"
-			} else if userinfo.gender == 1 {
+			} else if userinfo.Gender == 1 {
 				gender = "男"
 			} else {
 				gender = "女"
 			}
-			newUser := db.User{OpenID: userinfo.openID, NickName: userinfo.nickName, AvatarURL: userinfo.avatarUrl, Gender: gender}
-			session.Set(wechatUserData.thirdKey, "userInfo", newUser)
+			newUser := db.User{OpenID: userinfo.OpenID, NickName: userinfo.NickName, AvatarURL: userinfo.AvatarUrl, Gender: gender}
+			session.Set(wechatUserData.ThirdKey, "userInfo", newUser)
 			newUser.Insert()
-			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.thirdKey)
+			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.ThirdKey)
 			return 200, rsp
 		}
 	} else {
@@ -140,19 +142,18 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 
 func getWxSessionCode(wxcode *WxCode, config *conf.Config) *WxSessionKey {
 	// 获取微信code
+	var wxKey WxSessionKey
 	wxSessionAddr := fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
-		config.Wechat.APPID, config.Wechat.AppSecret, wxcode.code)
+		config.Wechat.APPID, config.Wechat.AppSecret, wxcode.Code)
 	rsp, err := http.Get(wxSessionAddr)
+	defer rsp.Body.Close()
+	b, _ := ioutil.ReadAll(rsp.Body)
+	body := string(b)
 	if err != nil {
 		log.Fatal(err)
 	}
-	decoder := json.NewDecoder(rsp.Body)
-	var wxsessionKey WxSessionKey
-	err = decoder.Decode(&wxsessionKey)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return &wxsessionKey
+	json.Unmarshal([]byte(body), &wxKey)
+	return &wxKey
 }
 
 func createThirdPatyKey(wxsessionKey *WxSessionKey, u *db.User, session *middleware.WxSessionManager) string {
