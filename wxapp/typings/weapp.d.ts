@@ -162,6 +162,8 @@ declare namespace wx {
          * 开发者服务器返回的内容
          */
         data: any;
+        statusCode:any;
+        header: any;
     }
 
     export interface RequestOptions extends BaseOptions {
@@ -2054,6 +2056,8 @@ declare namespace wx {
          * 包括敏感数据在内的完整用户信息的加密数据，详细见加密数据解密算法
          */
         encryptData: string;
+        // 加密向量
+        iv: string;
     }
 
     /**
@@ -2097,6 +2101,7 @@ declare namespace wx {
         /**
          * 接口调用成功的回调函数
          */
+        withCredentials?:boolean;
         success?: (res?: GetUserInfoResult) => void;
     }
 

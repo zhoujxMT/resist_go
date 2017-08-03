@@ -25,3 +25,4 @@ develop-eggs/
 # web
 wxapp/node_modules/
 wxapp/*.js
+wxapp/dist/

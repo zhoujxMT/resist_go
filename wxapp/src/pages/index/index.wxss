@@ -1,0 +1,43 @@
+/**index.wxss**/
+.userinfo {
+    display: flex;
+    flex-direction: row;
+    top:10rpx;
+    left: 10rpx;
+    width:100%;
+    height:50rpx;
+}
+.userinfo-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  margin-left:20rpx;
+  border-radius: 50%;
+}
+
+.room-size-btn{
+    width:90%;
+    margin-top:10rpx;
+}
+
+.game-avatar{
+    width:512rpx;
+    height: 640rpx;
+    margin-top: 20rpx;
+}
+
+.index-container{
+    display: flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.welcome-info {
+    font-size: 25rpx;
+    margin-left: 20rpx;
+    margin-top: 10rpx;
+}
+
+.usermotto {
+  margin-top: 200px;
+}
+
