@@ -92,7 +92,6 @@
                 console.log(clientName)
                 var socket = $.simpleWebSocket({
                     url: 'ws://localhost:3000/game/testroom/test?thirdKey='+clientName,
-                    protocols: 'your_protocol', // optional
                     timeout: 20000, // optional, default timeout between connection attempts
                     attempts: 60, // optional, default attempts until closing connection
                     dataType: 'json' // optional (xml, json, text), default json
