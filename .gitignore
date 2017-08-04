@@ -4,6 +4,7 @@ vendor/
 *.data
 *.db
 debug
+resist_go
 
 #############
 ## Python
