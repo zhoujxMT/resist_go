@@ -92,17 +92,11 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 		room.TurnsTalkList.PushBack("END")
 		// 发送一个标记告诉客户端人满了
 		for _, cli := range room.Clients {
-			readMsg := &Message{From: "System", EventName: "READY"}
+			readMsg := &Message{From: "STSTEM", EventName: "READY"}
 			cli.out <- readMsg
 		}
 		// 初始化第一局游戏的信息
 		room.InitRoomGame()
-		return true
-	} else if len(room.ClientNameList()) == room.RoomSize {
-		startMsg := &Message{From: "SYSTEM", EventName: "Start", Body: ""}
-		for _, cli := range room.Clients {
-			cli.out <- startMsg
-		}
 		return true
 	} else {
 		return false

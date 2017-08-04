@@ -6,7 +6,7 @@ import (
 
 type Client struct {
 	Name      string // 客户端链接的名字，这里一般为3rdsession的字符串
-	UserInfo  db.User
+	UserInfo  *db.User
 	in        <-chan *Message // 传进来的消息管道
 	out       chan<- *Message // 发出去的消息管道
 	done      <-chan bool     // 结束的bool

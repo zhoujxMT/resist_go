@@ -128,7 +128,7 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 				gender = "女"
 			}
 			newUser := db.User{OpenID: userinfo.OpenID, NickName: userinfo.NickName, AvatarURL: userinfo.AvatarUrl, Gender: gender}
-			session.Set(wechatUserData.ThirdKey, "userInfo", newUser)
+			session.Set(wechatUserData.ThirdKey, "userInfo", &newUser)
 			newUser.Insert()
 			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.ThirdKey)
 			return 200, rsp

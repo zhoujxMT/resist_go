@@ -56,7 +56,7 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 	roomName := params["name"]
 	info, ok := session.Get(sessionKey, "userInfo")
 	if ok == true {
-		userInfo := info.(db.User)
+		userInfo := info.(*db.User)
 		cli := Client{Name: sessionKey, UserInfo: userInfo, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
 		room := chat.GetRoomByName(roomName)
 		if room == nil {
@@ -82,6 +82,9 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 				msg.UserInfo.NickName = cli.UserInfo.NickName
 				msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
 				room.BroadcastMessage(msg, &cli)
+				if len(room.ClientNameList()) == 0 {
+					chat.RemoveChat(roomName)
+				}
 				return 200, "ok"
 			}
 		}
