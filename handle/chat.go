@@ -128,10 +128,10 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 }
 
 func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error, session *middleware.WxSessionManager) (int, string) {
+	newRoom := CreteRoom("test", 5)
 	thridKey := req.URL.Query().Get("thirdKey")
 	roomName := params["name"]
-	log.Println(thridKey)
-	log.Println(roomName)
+	chat.AddRoom(roomName, newRoom)
 	// 添加测试账号
 	isTest, _ := regexp.MatchString("^test", thridKey)
 	fmt.Println(isTest)
