@@ -8,6 +8,8 @@ import (
 
 	"github.com/beatrichartz/martini-sockets"
 	"github.com/go-martini/martini"
+	"github.com/martini-contrib/cors"
+	"github.com/martini-contrib/render"
 )
 
 func main() {
@@ -16,6 +18,7 @@ func main() {
 	config := conf.CreateConfig("./config/config.yaml")
 	ConfigMartini(m, config)
 	RouterConfig(m)
+
 	m.Run()
 }
 
@@ -28,10 +31,12 @@ func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.Clas
 	m.Map(orm)
 	// 全局配置信息
 	m.Map(config)
+	// render
+	m.Use(render.Renderer())
 	// 全局Wxssion管理器
 	m.Map(sessionManager)
-	handle.GetChat()
 
+	handle.GetChat()
 	return m
 }
 
@@ -41,5 +46,17 @@ func RouterConfig(m *martini.ClassicMartini) {
 	})
 	m.Post("/login", handle.LoginWechatUser)
 	m.Post("/registerUser", handle.RegisterWechatUser)
+	m.Post("/room", handle.HandleCreateRoom)
 	m.Get("/game/room/:name", sockets.JSON(handle.Message{}), handle.ResistSocket)
+	allowHandler := cors.Allow(&cors.Options{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	})
+	m.Get("/game/testroom/:name", allowHandler, sockets.JSON(handle.Message{}), handle.ResistSocketTest)
+	m.Get("/test", func(r render.Render) {
+		r.HTML(200, "test", "")
+	})
 }

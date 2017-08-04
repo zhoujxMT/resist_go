@@ -11,3 +11,6 @@ import:
   subpackages:
   - context
 - package: github.com/gorilla/websocket
+- package: github.com/martini-contrib/cors
+- package: github.com/martini-contrib/render
+- package: github.com/oxtoacart/bpool

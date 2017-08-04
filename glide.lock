@@ -1,5 +1,5 @@
-hash: ee16bc0849268d8d9a2b2f6a67aff1bf824f26505eebaa2e39f551a1430aa416
-updated: 2017-07-13T20:00:38.668561616+08:00
+hash: e577a4d150255065e977967ad5fd0f68343b64ec0054cdd66247c9374b25928d
+updated: 2017-08-04T17:55:23.090065922+08:00
 imports:
 - name: github.com/beatrichartz/martini-sockets
   version: 3eafc7b6445cc1405ff4911e1c5bca4878540eba
@@ -15,8 +15,14 @@ imports:
   version: 78795d8f1385c80d5229435a13ef71d4e30435a6
 - name: github.com/gorilla/websocket
   version: ea4d1f681babbce9545c9c5f3d5194a789c89f5b
+- name: github.com/martini-contrib/cors
+  version: 553b9208d353a39b0850c02355f478ba020c86d7
+- name: github.com/martini-contrib/render
+  version: ec18f8345a1181146728238980606fb1d6f40e8c
 - name: github.com/mattn/go-sqlite3
   version: 47fc4e5e9153645da45af6a86a5bce95e63a0f9e
+- name: github.com/oxtoacart/bpool
+  version: 4e1c5567d7c2dd59fa4c7c83d34c2f3528b025d6
 - name: golang.org/x/net
   version: f01ecb60fe3835d80d9a0b7b2bf24b228c89260e
   subpackages:

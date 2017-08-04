@@ -1,6 +1,12 @@
 package handle
 
 import (
+	"crypto/rand"
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"regexp"
 	"sync"
 
 	"net/http"
@@ -15,14 +21,20 @@ type Chat struct {
 	Rooms map[string]*Room
 }
 
+type CreateRoomInfo struct {
+	RoomSize int `json:"roomSize"`
+}
+
 var chat *Chat
 var once sync.Once
 
 // NewChat ...
 func GetChat() *Chat {
-	once.Do(func() {
-		chat = &Chat{sync.Mutex{}, map[string]*Room{}}
-	})
+	if chat == nil {
+		once.Do(func() {
+			chat = &Chat{sync.Mutex{}, map[string]*Room{}}
+		})
+	}
 	return chat
 }
 
@@ -50,20 +62,41 @@ func (chat *Chat) RemoveChat(roomName string) {
 	delete(chat.Rooms, roomName)
 }
 
+func HandleCreateRoom(req *http.Request) (int, string) {
+	var createRoomInfo CreateRoomInfo
+	decoder := json.NewDecoder(req.Body)
+	err := decoder.Decode(&createRoomInfo)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// 生成uuid
+	b := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		log.Fatal(err)
+		return 0, ""
+	}
+	uuid := fmt.Sprintf("room_%x%x%x%x%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	room := CreteRoom(uuid, createRoomInfo.RoomSize)
+	chat.AddRoom(uuid, room)
+	roomInfo := fmt.Sprintf(`{"roomId":%s}`, uuid)
+	return 200, roomInfo
+}
+
 // HandleGameSocket ...
 func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error, session *middleware.WxSessionManager) (int, string) {
-	sessionKey := req.Header.Get("authSessionKey")
+	thridKey := req.URL.Query().Get("thirdKey")
 	roomName := params["name"]
-	info, ok := session.Get(sessionKey, "userInfo")
+	info, ok := session.Get(thridKey, "userInfo")
+	// 添加测试账号
 	if ok == true {
 		userInfo := info.(*db.User)
-		cli := Client{Name: sessionKey, UserInfo: userInfo, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
+		cli := Client{Name: thridKey, UserInfo: userInfo, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
 		room := chat.GetRoomByName(roomName)
 		if room == nil {
 			return 404, "{errorInfo:'can't find room'}"
 		}
-		room.AddClient(sessionKey, &cli)
-		addMsg := &Message{From: sessionKey, EventName: "Join", Body: ""}
+		room.AddClient(thridKey, &cli)
+		addMsg := &Message{From: thridKey, EventName: "JOIN", Body: ""}
 		addMsg.UserInfo.NickName = cli.UserInfo.NickName
 		addMsg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
 		room.BroadcastMessage(addMsg, &cli)
@@ -77,7 +110,7 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 			case <-cli.done:
 				// 处理掉线
 				room.RemoveClient(cli.Name)
-				msg := &Message{From: sessionKey, EventName: "Disconnect",
+				msg := &Message{From: thridKey, EventName: "DISCONTENT",
 					Body: " "}
 				msg.UserInfo.NickName = cli.UserInfo.NickName
 				msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
@@ -91,5 +124,47 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 
 	} else {
 		return 403, "{'errorInfo':'no login'}"
+	}
+}
+
+func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error, session *middleware.WxSessionManager) (int, string) {
+	thridKey := req.URL.Query().Get("thirdKey")
+	roomName := params["name"]
+	log.Println(thridKey)
+	log.Println(roomName)
+	// 添加测试账号
+	isTest, _ := regexp.MatchString("^test", thridKey)
+	fmt.Println(isTest)
+	testUser := &db.User{OpenID: "TEST", NickName: "Test", AvatarURL: "XXX", Gender: "男"}
+	cli := Client{Name: thridKey, UserInfo: testUser, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
+	room := chat.GetRoomByName(roomName)
+	if room == nil {
+		return 404, "{errorInfo:'can't find room'}"
+	}
+	room.AddClient(thridKey, &cli)
+	addMsg := &Message{From: thridKey, EventName: "JOIN", Body: ""}
+	addMsg.UserInfo.NickName = cli.UserInfo.NickName
+	addMsg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
+	room.BroadcastMessage(addMsg, &cli)
+	for {
+		select {
+		case <-cli.err:
+			// 处理错误消息
+		case msg := <-cli.in:
+			// 消息处理器
+			ResistGameHandle(room, msg, &cli)
+		case <-cli.done:
+			// 处理掉线
+			room.RemoveClient(cli.Name)
+			msg := &Message{From: thridKey, EventName: "DISCONTENT",
+				Body: " "}
+			msg.UserInfo.NickName = cli.UserInfo.NickName
+			msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
+			room.BroadcastMessage(msg, &cli)
+			if len(room.ClientNameList()) == 0 {
+				chat.RemoveChat(roomName)
+			}
+			return 200, "ok"
+		}
 	}
 }

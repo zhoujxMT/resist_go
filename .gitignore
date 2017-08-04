@@ -3,6 +3,7 @@ vendor/
 .*.un~
 *.data
 *.db
+debug
 
 #############
 ## Python

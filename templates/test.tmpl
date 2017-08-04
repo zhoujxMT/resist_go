@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>测试游戏逻辑</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script src="/jquery.simple.websocket.min.js"></script>
+    </head>
+    <body>
+        <div class="client" id="test1">
+            <textarea rows="10" cols="30"></textarea>
+            <button class="connect">链接</button>
+            <button class="dismiss">反对任务</button>
+            <button class="argmiss">赞成任务</button>
+            <button class="dis">反对选人</button>
+            <button class="argee">赞成选人</button>
+            <button class="send_msg">发送消息</button>
+            <button class="send_spe">发送演讲</button>
+            <button class="send_team">发送选择队员</button>
+            <button class="getuser">获取用户信息</button>
+            <div class="dashbord"></div>
+        </div>
+        <div class="client" id="test2">
+            <textarea rows="10" cols="30"></textarea>
+            <button class="connect">链接</button>
+            <button class="dismiss">反对任务</button>
+            <button class="argmiss">赞成任务</button>
+            <button class="dis">反对选人</button>
+            <button class="argee">赞成选人</button>
+            <button class="send_msg">发送消息</button>
+            <button class="send_spe">发送演讲</button>
+            <button class="send_team">发送选择队员</button>
+            <button class="getuser">获取用户信息</button>
+            <div class="dashbord"></div>
+            <div class="dashbord"></div>
+        </div>
+        <div class="client" id="test3">
+            <textarea rows="10" cols="30"></textarea>
+            <button class="connect">链接</button>
+            <button class="dismiss">反对任务</button>
+            <button class="argmiss">赞成任务</button>
+            <button class="dis">反对选人</button>
+            <button class="argee">赞成选人</button>
+            <button class="send_msg">发送消息</button>
+            <button class="send_spe">发送演讲</button>
+            <button class="send_team">发送选择队员</button>
+            <button class="getuser">获取用户信息</button>
+            <div class="dashbord"></div>
+        </div>
+        <div class="client" id="test4">
+            <textarea rows="10" cols="30"></textarea>
+            <button class="connect">链接</button>
+            <button class="dismiss">反对任务</button>
+            <button class="argmiss">赞成任务</button>
+            <button class="dis">反对选人</button>
+            <button class="argee">赞成选人</button>
+            <button class="send_msg">发送消息</button>
+            <button class="send_spe">发送演讲</button>
+            <button class="send_team">发送选择队员</button>
+            <button class="getuser">获取用户信息</button>
+            <div class="dashbord"></div>
+        </div>
+        <div class="client" id="test5">
+            <textarea rows="10" cols="30"></textarea>
+            <button class="connect">链接</button>
+            <button class="dismiss">反对任务</button>
+            <button class="argmiss">赞成任务</button>
+            <button class="dis">反对选人</button>
+            <button class="argee">赞成选人</button>
+            <button class="send_msg">发送消息</button>
+            <button class="send_spe">发送演讲</button>
+            <button class="send_team">发送选择队员</button>
+            <button class="getuser">获取用户信息</button>
+            <div class="dashbord"></div>
+        </div>
+        <script>
+            var sockets = {
+            }
+            var client = $(".client")
+            var connect = client.children(".connect");
+            var dismiss = client.children(".dismiss")
+            var argmiss = client.children(".argmiss")
+            var dis = client.children(".dis")
+            var argee = client.children(".argee")
+            var send_msg = client.children(".send_msg")
+            var send_spe = client.children(".send_spe")
+            var getuser = client.children(".getuser")
+            connect.on("click",function(){
+                var clientName = $(this).parent(".client").attr("id")
+                console.log(clientName)
+                var socket = $.simpleWebSocket({
+                    url: 'ws://localhost:3000/game/testroom/test?thirdKey='+clientName,
+                    protocols: 'your_protocol', // optional
+                    timeout: 20000, // optional, default timeout between connection attempts
+                    attempts: 60, // optional, default attempts until closing connection
+                    dataType: 'json' // optional (xml, json, text), default json
+                })
+                socket.connect()
+                sockets[clientName]=socket;
+                console.log(sockets)
+            })
+        </script>
+    </body>
+</html>
