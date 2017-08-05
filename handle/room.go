@@ -11,6 +11,7 @@ type InitInfo struct {
 	Role     string   `json:"role"`
 	Captain  string   `json:"captain"`
 	TeamList []string `json:"teamList"`
+	Speecher string   `json:"speecher"`
 }
 
 type Room struct {
@@ -58,6 +59,8 @@ func isBadMan(clientName string, badManList []string) bool {
 func (room *Room) InitRoomGame() {
 	// 随机选择队长
 	captaignsName, _ := room.TakeRandCaptains()
+	speecher := room.TurnsTalkList.Front()
+	room.TurnsTalkList.MoveToBack(speecher)
 
 	badManList := []string{}
 	// 分配坏蛋
@@ -73,13 +76,13 @@ func (room *Room) InitRoomGame() {
 		isbadMan := isBadMan(cliName, badManList)
 		if isbadMan == true {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			initInfo := &InitInfo{"BADMAN", captaignsName, badManList}
+			initInfo := &InitInfo{"BADMAN", captaignsName, badManList, speecher.Value.(string)}
 			body, _ := json.Marshal(initInfo)
 			msg.Body = string(body)
 			cli.out <- msg
 		} else {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			initInfo := &InitInfo{Role: "GOODMAN", Captain: captaignsName}
+			initInfo := &InitInfo{Role: "GOODMAN", Captain: captaignsName, Speecher: speecher.Value.(string)}
 			body, _ := json.Marshal(initInfo)
 			msg.Body = string(body)
 			cli.out <- msg

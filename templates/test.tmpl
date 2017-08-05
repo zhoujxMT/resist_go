@@ -190,6 +190,16 @@
                 var s = sockets[clientName]
                 s.send(JSON.stringify(msg))
             })
+            getuser.on("click", function(){
+                var clientName = $(this).parent(".client").attr("id")
+                msg = {
+                    from:"SYSTEM",
+                    eventName:"GET_USERS",
+                    Body:""
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
             
         </script>
     </body>

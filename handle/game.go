@@ -140,6 +140,20 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 	case "TEAM":
 		bTeamMsg := &Message{From: cli.Name, EventName: "CHOICE_TEAM", Body: msg.Body}
 		room.BroadcastMessage(bTeamMsg, cli)
+	case "GET_USERS":
+		room.Lock()
+		roomUserList := []RoomUserInfo{}
+		for cliName, cli := range room.Clients {
+			roomUserInfo := RoomUserInfo{Name: cliName,
+				NickName:  cli.UserInfo.NickName,
+				AvatarUrl: cli.UserInfo.AvatarURL}
+			roomUserList = append(roomUserList, roomUserInfo)
+		}
+		jsonUserInfo, _ := json.Marshal(roomUserList)
+		userListMsg := &Message{From: "SYSTEM", EventName: "GET_USERS", Body: string(jsonUserInfo)}
+		room.Unlock()
+		room.SendMessage(userListMsg, cli.Name)
+
 	default:
 		fmt.Println("哇哈哈")
 	}

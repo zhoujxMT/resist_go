@@ -20,6 +20,10 @@ type RoomUserInfo struct {
 	AvatarUrl string `json:"avatarUrl"`
 }
 
+type RoomUserList struct {
+	UserList []*RoomUserInfo `json:"roomUserList"`
+}
+
 type Message struct {
 	From      string `json:"from"`
 	EventName string `json:"eventName"`
