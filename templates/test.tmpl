@@ -34,7 +34,6 @@
             <button class="send_team">发送选择队员</button>
             <button class="getuser">获取用户信息</button>
             <div class="dashbord"></div>
-            <div class="dashbord"></div>
         </div>
         <div class="client" id="test3">
             <textarea rows="10" cols="30"></textarea>
@@ -96,7 +95,7 @@
                     // 监听消息
                     socket.onmessage = function(event) { 
                         console.log(clientName + ':Client received a message: '+event.data); 
-                        clientBox.children('.dashbord').append(event.data+ ";")
+                        clientBox.children('.dashbord').append("<p>"+event.data+ ";"+"</p>")
                     }; 
 
                     // 监听Socket的关闭
@@ -107,21 +106,71 @@
                     // 关闭Socket.... 
                     //socket.close() 
                 };
-                socket[clientName] = socket
-
-
+                sockets[clientName] = socket
             })
-           // connection.on("click",function(){
-            //     var clientName = $(this).parent(".client").attr("id")
-            //     var socket = $.simpleWebSocket({
-            //         url: 'ws://localhost:3000/game/testroom/test?thirdKey='+clientName,
-            //         timeout: 20000, // optional, default timeout between connection attempts
-            //         attempts: 60, // optional, default attempts until closing connection
-            //         dataType: 'json' // optional (xml, json, text), default json
-            //     }).connect()
-            //     sockets[clientName]=socket;
-            // })
-            
+            send_msg.on("click", function(){
+                var clientName = $(this).parent(".client").attr("id")
+                textArea = send_msg.parent(".client").children("textarea")
+                msg = {
+                    from:clientName,
+                    eventName:"CHAT",
+                    body:textArea.val()
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
+            send_spe.on("click",function(){
+                var clientName = $(this).parent(".client").attr("id")
+                textArea = send_msg.parent(".client").children("textarea")
+                msg = {
+                    from:clientName,
+                    eventName:"SPEECH",
+                    body:textArea.val()
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
+            dis.on("click", function(){
+                var clientName = $(this).parent(".client").attr("id")
+                msg = {
+                    from:clientName,
+                    eventName:"CAPVOTE",
+                    body:"False"
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
+            argee.on("click",function(){
+                var clientName = $(this).parent(".client").attr("id")
+                msg = {
+                    from:clientName,
+                    eventName:"CAPVOTE",
+                    body:"True"
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
+            dismiss.on("click", function(){
+                var clientName = $(this).parent(".client").attr("id")
+                msg = {
+                    from:clientName,
+                    eventName:"MISSIONVOTE",
+                    body:"False"
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+ 
+            })
+            argmiss.on("click", function(){
+                var clientName = $(this).parent(".client").attr("id")
+                msg = {
+                    from:clientName,
+                    eventName:"MISSIONVOTE",
+                    body:"True"
+                }
+                var s = sockets[clientName]
+                s.send(JSON.stringify(msg))
+            })
         </script>
     </body>
 </html>

@@ -103,10 +103,12 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 		room.BroadcastMessage(addMsg, &cli)
 		for {
 			select {
-			case <-cli.err:
+			case errMsg := <-cli.err:
+				log.Fatal(errMsg)
 				// 处理错误消息
 			case msg := <-cli.in:
 				// 消息处理器
+				fmt.Println(msg)
 				ResistGameHandle(room, msg, &cli)
 			case <-cli.done:
 				// 处理掉线

@@ -2,6 +2,7 @@ package handle
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -51,7 +52,7 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 		}
 	// 队长投票
 	// TODO:这里要重构
-	case "TEAMVOTE":
+	case "CAPVOTE":
 		// 投票
 		if msg.Body == "True" {
 			room.VoteAgreeVote(cli.Name)
@@ -173,5 +174,7 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 		json.Unmarshal([]byte(msg.Body), &teamListMsg)
 		bTeamMsg := &Message{From: cli.Name, EventName: "CHOICE_TEAM", Body: msg.Body}
 		room.BroadcastAll(bTeamMsg)
+	default:
+		fmt.Println("哇哈哈")
 	}
 }

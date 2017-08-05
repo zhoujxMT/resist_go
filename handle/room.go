@@ -45,14 +45,13 @@ func CreteRoom(roomName string, roomSize int) *Room {
 }
 
 func isBadMan(clientName string, badManList []string) bool {
-	for point := range badManList {
-		if badManList[point] == clientName {
-			return true
-		} else {
-			return false
+	var badman = false
+	for _, value := range badManList {
+		if value == clientName {
+			badman = true
 		}
 	}
-	return false
+	return badman
 }
 
 // 初始化游戏信息
@@ -64,14 +63,15 @@ func (room *Room) InitRoomGame() {
 	// 分配坏蛋
 	clientList := room.ClientNameList()
 	// 初始化信息
-	for i := 0; i <= 1; i++ {
+	for i := 0; i < 2; i++ {
 		point := rand.Intn(len(clientList))
 		badManList = append(badManList, clientList[point])
 		clientList = append(clientList[:point], clientList[point+1:]...)
 	}
 	// 根据分配选择给各个客户端返回信息
 	for cliName, cli := range room.Clients {
-		if isBadMan(cliName, badManList) {
+		isbadMan := isBadMan(cliName, badManList)
+		if isbadMan == true {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
 			initInfo := &InitInfo{"BADMAN", captaignsName, badManList}
 			body, _ := json.Marshal(initInfo)
@@ -290,7 +290,9 @@ func (room *Room) ClientNameList() []string {
 // 给房间所有人发送消息
 func (room *Room) BroadcastMessage(msg *Message, client *Client) {
 	for _, cli := range room.Clients {
-		cli.out <- msg
+		if cli.Name != client.Name {
+			cli.out <- msg
+		}
 	}
 }
 
