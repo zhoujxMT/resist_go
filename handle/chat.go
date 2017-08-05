@@ -23,6 +23,10 @@ type Chat struct {
 type CreateRoomInfo struct {
 	RoomSize int `json:"roomSize"`
 }
+type ChatUserInfo struct {
+	NickName  string `json:"nickName"`
+	AvatarURL string `json:"avatarUrl"`
+}
 
 var chat *Chat
 var once sync.Once
@@ -96,8 +100,6 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 		}
 		room.AddClient(thridKey, &cli)
 		addMsg := &Message{From: thridKey, EventName: "JOIN", Body: ""}
-		addMsg.UserInfo.NickName = cli.UserInfo.NickName
-		addMsg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
 		room.BroadcastMessage(addMsg, &cli)
 		for {
 			select {
@@ -109,10 +111,10 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 			case <-cli.done:
 				// 处理掉线
 				room.RemoveClient(cli.Name)
-				msg := &Message{From: thridKey, EventName: "DISCONTENT",
-					Body: " "}
-				msg.UserInfo.NickName = cli.UserInfo.NickName
-				msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
+				msg := &Message{From: thridKey, EventName: "DISCONTENT"}
+				chatUserInfo := &ChatUserInfo{cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
+				body, _ := json.Marshal(chatUserInfo)
+				msg.Body = string(body)
 				room.BroadcastMessage(msg, &cli)
 				if len(room.ClientNameList()) == 0 {
 					chat.RemoveChat(roomName)
@@ -147,10 +149,10 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 		case <-cli.done:
 			// 处理掉线
 			room.RemoveClient(cli.Name)
-			msg := &Message{From: thridKey, EventName: "DISCONTENT",
-				Body: " "}
-			msg.UserInfo.NickName = cli.UserInfo.NickName
-			msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
+			msg := &Message{From: thridKey, EventName: "DISCONTENT"}
+			chatUserInfo := &ChatUserInfo{cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
+			body, _ := json.Marshal(chatUserInfo)
+			msg.Body = string(body)
 			room.Lock()
 			room.BroadcastMessage(msg, &cli)
 			room.Unlock()

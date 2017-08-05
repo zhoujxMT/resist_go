@@ -2,9 +2,16 @@ package handle
 
 import (
 	"container/list"
+	"encoding/json"
 	"math/rand"
 	"sync"
 )
+
+type InitInfo struct {
+	Role     string   `json:"role"`
+	Captain  string   `json:"captain"`
+	TeamList []string `json:"teamList"`
+}
 
 type Room struct {
 	sync.Mutex                       // 互斥锁，保证线程安全
@@ -66,14 +73,15 @@ func (room *Room) InitRoomGame() {
 	for cliName, cli := range room.Clients {
 		if isBadMan(cliName, badManList) {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			msg.RoleInfo.Role = "BADMAN"
-			msg.RoleInfo.Captain = captaignsName
-			msg.TeamList = badManList
+			initInfo := &InitInfo{"BADMAN", captaignsName, badManList}
+			body, _ := json.Marshal(initInfo)
+			msg.Body = string(body)
 			cli.out <- msg
 		} else {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			msg.RoleInfo.Role = "GOODMAN"
-			msg.RoleInfo.Captain = captaignsName
+			initInfo := &InitInfo{Role: "GOODMAN", Captain: captaignsName}
+			body, _ := json.Marshal(initInfo)
+			msg.Body = string(body)
 			cli.out <- msg
 		}
 	}
@@ -85,8 +93,9 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 	defer room.Unlock()
 	// 通知其他用户发送
 	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
-	joinMsg.UserInfo.NickName = client.UserInfo.NickName
-	joinMsg.UserInfo.AvatarURL = client.UserInfo.AvatarURL
+	jsonUserInfo := &ChatUserInfo{client.UserInfo.NickName, client.UserInfo.AvatarURL}
+	body, _ := json.Marshal(jsonUserInfo)
+	joinMsg.Body = string(body)
 	if len(room.ClientNameList()) < room.RoomSize-1 {
 		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
@@ -102,8 +111,8 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 		room.TurnsTalkList.PushBack("END")
 		// 发送一个标记告诉客户端人满了
 		for _, cli := range room.Clients {
-			readMsg := &Message{From: "STSTEM", EventName: "READY"}
-			cli.out <- readMsg
+			readyMsg := &Message{From: "STSTEM", EventName: "READY"}
+			cli.out <- readyMsg
 		}
 		// 初始化第一局游戏的信息
 		room.BroadcastMessage(joinMsg, client)
