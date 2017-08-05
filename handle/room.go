@@ -259,7 +259,7 @@ func (room *Room) AddGoodManWins() bool {
 	room.Lock()
 	defer room.Unlock()
 	if room.GoodManWins < 3 && room.GoodManWins+room.BadGuysWins < 5 {
-		room.GameNum++
+		room.GoodManWins++
 		return true
 	} else {
 		return false

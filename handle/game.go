@@ -35,7 +35,7 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 		speecher := room.TakeTurnsClientName()
 		// 选择投票任务是否选择
 		if speecher == "END" {
-			if room.GameNum <= 5 {
+			if room.GameNum <= 4 {
 				speechEndMsg := &Message{From: "SYSTEM", EventName: "CAPVOTE"}
 				room.BroadcastAll(speechEndMsg)
 			}
@@ -54,38 +54,30 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 	// TODO:这里要重构
 	case "CAPVOTE":
 		// 投票
-		if msg.Body == "True" {
-			room.VoteAgreeVote(cli.Name)
-		} else {
-			room.VoteDisVote(cli.Name)
-		}
-		agrvotes, disvotes := room.GetVotes()
-		// 如果票数够了
-		if agrvotes+disvotes == room.RoomSize {
-			// 统计投票
-			agr, _ := room.CountVote("team")
-			if room.GameNum <= 5 {
+		// 当前局数
+		fmt.Println("当前局数:", room.GameNum)
+		if room.GameNum <= 4 {
+			if msg.Body == "True" {
+				room.VoteAgreeVote(cli.Name)
+			} else {
+				room.VoteDisVote(cli.Name)
+			}
+			agrvotes, disvotes := room.GetVotes()
+			fmt.Println(agrvotes, disvotes)
+			// 当投票够了时候
+			if agrvotes+disvotes == room.RoomSize {
+				agr, _ := room.CountVote("team")
+				//如果同意通知所有人可以执行任务了
 				if agr == true {
 					voteMsg := &Message{From: "SYSTEM", EventName: "TEAMVOTE", Body: "AGREE"}
 					room.BroadcastAll(voteMsg)
+					// 清空票仓
 				} else {
-					// 如果任务没有成功执行，则坏人赢一局
-					room.AddBadGuysWins()
-					voteMsg := &Message{From: "SYSTEM", EventName: "TEAMVOTE", Body: "DISMISS"}
-					room.BroadcastAll(voteMsg)
-					// ...
-					if room.GameNum == 5 {
-						// 如果已经进行第5局则开始清算了
-						var gameMsg *Message
-						if room.GoodManWins > room.BadGuysWins {
-							gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "GOODMAN"}
-						} else {
-							gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "BADGUYS"}
-						}
-						room.BroadcastAll(gameMsg)
-
-					} else {
-						// 如果失败进行下一局，重新选择一个队长
+					// 如果任务没有成功执行，则坏人赢一局,进行下一局
+					if room.GameNum < 4 {
+						room.AddBadGuysWins()
+						voteMsg := &Message{From: "SYSTEM", EventName: "TEAMVOTE", Body: "DISMISS"}
+						room.BroadcastAll(voteMsg)
 						capName, _ := room.TakeRandCaptains()
 						capMsg := &Message{From: "SYSTEM", EventName: "CHOICE_CAPTAIN", Body: capName}
 						room.BroadcastAll(capMsg)
@@ -96,85 +88,91 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 						}
 						body, _ := json.Marshal(teamSizeMap)
 						teamMsg := &Message{From: "SYSTEM", EventName: "TEAM", Body: string(body)}
-						room.SendMessage(teamMsg, capName)
+						room.BroadcastAll(teamMsg)
+						// 清空票仓
 					}
-
 				}
-				// 清算后清空票仓
 				room.ClearVoteSet()
-			} else {
-				log.Fatal("GAMENUM ERROR")
+				// 当坏人已经赢过3局，游戏直接失败
+				fmt.Println("坏蛋分数", room.BadGuysWins, "好人分数", room.GoodManWins)
+				if room.BadGuysWins >= 3 {
+					var gameMsg *Message
+					gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "BADMANWINS"}
+					room.BroadcastAll(gameMsg)
+				}
 			}
+			//清空票仓
+		} else {
+			log.Fatal("GAMENUM ERROR")
 		}
 	// 任务投票阶段
 	case "MISSIONVOTE":
-		if msg.Body == "True" {
-			room.VoteAgreeVote(cli.Name)
-		} else {
-			room.VoteDisVote(cli.Name)
-		}
-		missionNum := room.GetMissionConfig()
-		agrvotes, disvotes := room.GetVotes()
-		// 查看票输决定是否进行下一局
-		if agrvotes+disvotes == missionNum {
-			agr, _ := room.CountVote("mission")
-			if room.GameNum <= 5 {
-				if agr == true {
-					voteMsg := &Message{From: "SYSTEM", EventName: "MISSIONVOTE", Body: "AGREE"}
-					room.BroadcastAll(voteMsg)
-					room.AddGoodManWins()
-					capName, _ := room.TakeRandCaptains()
-					capMsg := &Message{From: "SYSTEM", EventName: "CHOICE_CAPTAIN", Body: capName}
-					room.BroadcastAll(capMsg)
-					// 发送当前局数选择队员人数
-					teamSize := room.GetMissionConfig()
-					teamSizeMap := map[string]int{
-						"teamSize": teamSize,
-					}
-					body, _ := json.Marshal(teamSizeMap)
-
-					teamMsg := &Message{From: "SYSTEM", EventName: "TEAM", Body: string(body)}
-					room.SendMessage(teamMsg, capName)
-				} else {
-					voteMsg := &Message{From: "SYSTEM", EventName: "MISSIONVOTE", Body: "DISMISS"}
-					room.BroadcastAll(voteMsg)
-					room.AddBadGuysWins()
-					capName, _ := room.TakeRandCaptains()
-					capMsg := &Message{From: "SYSTEM", EventName: "CHOICE_CAPTAIN", Body: capName}
-					room.BroadcastAll(capMsg)
-					// 发送当前局数选择队员人数
-					teamSize := room.GetMissionConfig()
-					teamSizeMap := map[string]int{
-						"teamSize": teamSize,
-					}
-					body, _ := json.Marshal(teamSizeMap)
-					teamMsg := &Message{From: "SYSTEM", EventName: "TEAM", Body: string(body)}
-					room.SendMessage(teamMsg, capName)
-				}
-				// 如果局数等于5
-				if room.GameNum == 5 {
-					var gameMsg *Message
-					if room.GoodManWins > room.BadGuysWins {
-						gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "GOODMAN"}
-					} else {
-						gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "BADGUYS"}
-					}
-					room.BroadcastAll(gameMsg)
-
-				} else {
-					room.AddGameNum()
-				}
+		if room.GameNum <= 4 {
+			//先投票
+			if msg.Body == "True" {
+				room.VoteAgreeVote(cli.Name)
 			} else {
-				log.Fatal("GameNum Error")
+				room.VoteDisVote(cli.Name)
 			}
+			// 都已经投了
+			missionNum := room.GetMissionConfig()
+			agrvotes, disvotes := room.GetVotes()
+			fmt.Println(missionNum, agrvotes, disvotes)
+			if agrvotes+disvotes == missionNum {
+				agr, _ := room.CountVote("mission")
+				missionsHandle(room, msg, cli, agr)
+			}
+			fmt.Println("坏蛋分数", room.BadGuysWins, "好人分数", room.GoodManWins)
+			if room.BadGuysWins >= 3 {
+				var gameMsg *Message
+				gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "BADMANWINS"}
+				room.BroadcastAll(gameMsg)
+			}
+			if room.GoodManWins >= 3 {
+				var gameMsg *Message
+				gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "GOODMANWINS"}
+				room.BroadcastAll(gameMsg)
+			}
+		} else {
+			log.Fatal("GameNum Error")
 		}
 	// 队长选择的队员
 	case "TEAM":
-		var teamListMsg TeamListMsg
-		json.Unmarshal([]byte(msg.Body), &teamListMsg)
 		bTeamMsg := &Message{From: cli.Name, EventName: "CHOICE_TEAM", Body: msg.Body}
-		room.BroadcastAll(bTeamMsg)
+		room.BroadcastMessage(bTeamMsg, cli)
 	default:
 		fmt.Println("哇哈哈")
+	}
+}
+
+func missionsHandle(room *Room, msg *Message, cli *Client, isAgree bool) {
+	if isAgree == true {
+		// 任务成功
+		voteMsg := &Message{From: "SYSTEM", EventName: "MISSIONVOTE", Body: "AGREE"}
+		room.BroadcastAll(voteMsg)
+		room.AddGoodManWins()
+
+	} else {
+		// 任务失败
+		voteMsg := &Message{From: "SYSTEM", EventName: "MISSIONVOTE", Body: "DISSMISS"}
+		room.BroadcastAll(voteMsg)
+		room.AddBadGuysWins()
+	}
+	// 下一局
+	if room.GameNum < 4 {
+
+		capName, _ := room.TakeRandCaptains()
+		capMsg := &Message{From: "SYSTEM", EventName: "CHOICE_CAPTAIN", Body: capName}
+		room.BroadcastAll(capMsg)
+		teamSize := room.GetMissionConfig()
+		room.AddGameNum()
+		teamSizeMap := map[string]int{
+			"teamSize": teamSize,
+		}
+		body, _ := json.Marshal(teamSizeMap)
+		teamMsg := &Message{From: "SYSTEM", EventName: "TEAM", Body: string(body)}
+		room.BroadcastAll(teamMsg)
+		// 清空票仓
+		room.ClearVoteSet()
 	}
 }
