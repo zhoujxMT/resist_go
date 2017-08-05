@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"regexp"
 	"sync"
 
 	"net/http"
@@ -128,13 +127,9 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 }
 
 func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error, session *middleware.WxSessionManager) (int, string) {
-	newRoom := CreteRoom("test", 5)
 	thridKey := req.URL.Query().Get("thirdKey")
 	roomName := params["name"]
-	chat.AddRoom(roomName, newRoom)
 	// 添加测试账号
-	isTest, _ := regexp.MatchString("^test", thridKey)
-	fmt.Println(isTest)
 	testUser := &db.User{OpenID: "TEST", NickName: "Test", AvatarURL: "XXX", Gender: "男"}
 	cli := Client{Name: thridKey, UserInfo: testUser, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
 	room := chat.GetRoomByName(roomName)
@@ -142,10 +137,6 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 		return 404, "{errorInfo:'can't find room'}"
 	}
 	room.AddClient(thridKey, &cli)
-	addMsg := &Message{From: thridKey, EventName: "JOIN", Body: ""}
-	addMsg.UserInfo.NickName = cli.UserInfo.NickName
-	addMsg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
-	room.BroadcastMessage(addMsg, &cli)
 	for {
 		select {
 		case <-cli.err:
@@ -160,7 +151,9 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 				Body: " "}
 			msg.UserInfo.NickName = cli.UserInfo.NickName
 			msg.UserInfo.AvatarURL = cli.UserInfo.AvatarURL
+			room.Lock()
 			room.BroadcastMessage(msg, &cli)
+			room.Unlock()
 			if len(room.ClientNameList()) == 0 {
 				chat.RemoveChat(roomName)
 			}

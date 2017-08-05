@@ -79,7 +79,7 @@
             var sockets = {
             }
             var client = $(".client")
-            var connect = client.children(".connect");
+            var connection = client.children(".connect");
             var dismiss = client.children(".dismiss")
             var argmiss = client.children(".argmiss")
             var dis = client.children(".dis")
@@ -87,19 +87,41 @@
             var send_msg = client.children(".send_msg")
             var send_spe = client.children(".send_spe")
             var getuser = client.children(".getuser")
-            connect.on("click",function(){
+            connection.on("click", function(){
                 var clientName = $(this).parent(".client").attr("id")
-                console.log(clientName)
-                var socket = $.simpleWebSocket({
-                    url: 'ws://localhost:3000/game/testroom/test?thirdKey='+clientName,
-                    timeout: 20000, // optional, default timeout between connection attempts
-                    attempts: 60, // optional, default attempts until closing connection
-                    dataType: 'json' // optional (xml, json, text), default json
-                })
-                socket.connect()
-                sockets[clientName]=socket;
-                console.log(sockets)
+                var clientBox = $(this).parent(".client")
+                var socket = new WebSocket('ws://localhost:3000/game/testroom/test?thirdKey='+clientName); 
+            // 打开Socket 
+                socket.onopen = function(event) { 
+                    // 监听消息
+                    socket.onmessage = function(event) { 
+                        console.log(clientName + ':Client received a message: '+event.data); 
+                        clientBox.children('.dashbord').append(event.data+ ";")
+                    }; 
+
+                    // 监听Socket的关闭
+                    socket.onclose = function(event) { 
+                        console.log('Client notified socket has closed',event); 
+                    }; 
+
+                    // 关闭Socket.... 
+                    //socket.close() 
+                };
+                socket[clientName] = socket
+
+
             })
+           // connection.on("click",function(){
+            //     var clientName = $(this).parent(".client").attr("id")
+            //     var socket = $.simpleWebSocket({
+            //         url: 'ws://localhost:3000/game/testroom/test?thirdKey='+clientName,
+            //         timeout: 20000, // optional, default timeout between connection attempts
+            //         attempts: 60, // optional, default attempts until closing connection
+            //         dataType: 'json' // optional (xml, json, text), default json
+            //     }).connect()
+            //     sockets[clientName]=socket;
+            // })
+            
         </script>
     </body>
 </html>

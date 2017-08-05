@@ -43,7 +43,10 @@ func ConfigMartini(m *martini.ClassicMartini, config *conf.Config) *martini.Clas
 		AllowCredentials: true,
 	}))
 
-	handle.GetChat()
+	chat := handle.GetChat()
+	// 增加测试房间
+	testRoom := handle.CreteRoom("test", 5)
+	chat.AddRoom("test", testRoom)
 	return m
 }
 

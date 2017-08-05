@@ -37,6 +37,17 @@ func CreteRoom(roomName string, roomSize int) *Room {
 	return &room
 }
 
+func isBadMan(clientName string, badManList []string) bool {
+	for point := range badManList {
+		if badManList[point] == clientName {
+			return true
+		} else {
+			return false
+		}
+	}
+	return false
+}
+
 // 初始化游戏信息
 func (room *Room) InitRoomGame() {
 	// 随机选择队长
@@ -46,25 +57,24 @@ func (room *Room) InitRoomGame() {
 	// 分配坏蛋
 	clientList := room.ClientNameList()
 	// 初始化信息
-	msg := &Message{From: "SYSTEM", EventName: "INIT"}
-	for i := 0; i <= 2; i++ {
+	for i := 0; i <= 1; i++ {
 		point := rand.Intn(len(clientList))
 		badManList = append(badManList, clientList[point])
 		clientList = append(clientList[:point], clientList[point+1:]...)
 	}
 	// 根据分配选择给各个客户端返回信息
 	for cliName, cli := range room.Clients {
-		for badmanpoint := range badManList {
-			if cliName == badManList[badmanpoint] {
-				msg.RoleInfo.Role = "BADMAN"
-				msg.RoleInfo.Captain = captaignsName
-				msg.TeamList = badManList
-				cli.out <- msg
-			} else {
-				msg.RoleInfo.Role = "GOODMAN"
-				msg.RoleInfo.Captain = captaignsName
-				cli.out <- msg
-			}
+		if isBadMan(cliName, badManList) {
+			msg := &Message{From: "SYSTEM", EventName: "INIT"}
+			msg.RoleInfo.Role = "BADMAN"
+			msg.RoleInfo.Captain = captaignsName
+			msg.TeamList = badManList
+			cli.out <- msg
+		} else {
+			msg := &Message{From: "SYSTEM", EventName: "INIT"}
+			msg.RoleInfo.Role = "GOODMAN"
+			msg.RoleInfo.Captain = captaignsName
+			cli.out <- msg
 		}
 	}
 }
@@ -77,12 +87,12 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
 	joinMsg.UserInfo.NickName = client.UserInfo.NickName
 	joinMsg.UserInfo.AvatarURL = client.UserInfo.AvatarURL
-	room.BroadcastMessage(joinMsg, client)
 	if len(room.ClientNameList()) < room.RoomSize-1 {
 		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
 		// 将clientName加入到发言队列中去
 		room.TurnsTalkList.PushBack(clientName)
+		room.BroadcastMessage(joinMsg, client)
 		return true
 	} else if len(room.ClientNameList()) == room.RoomSize-1 {
 		room.Clients[clientName] = client
@@ -96,6 +106,7 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 			cli.out <- readMsg
 		}
 		// 初始化第一局游戏的信息
+		room.BroadcastMessage(joinMsg, client)
 		room.InitRoomGame()
 		return true
 	} else {
@@ -222,8 +233,6 @@ func (room *Room) TakeTurnsClientName() string {
 
 // 随机获取队长
 func (room *Room) TakeRandCaptains() (string, bool) {
-	room.Lock()
-	defer room.Unlock()
 	if len(room.Captains) != 0 {
 		captainPoint := rand.Intn(len(room.Captains))
 		captainName := room.Captains[captainPoint]
@@ -262,8 +271,6 @@ func (room *Room) AddBadGuysWins() bool {
 
 // 客户端名字列表
 func (room *Room) ClientNameList() []string {
-	room.Lock()
-	defer room.Unlock()
 	list := []string{}
 	for clientName := range room.Clients {
 		list = append(list, clientName)
@@ -273,12 +280,8 @@ func (room *Room) ClientNameList() []string {
 
 // 给房间所有人发送消息
 func (room *Room) BroadcastMessage(msg *Message, client *Client) {
-	room.Lock()
-	defer room.Unlock()
 	for _, cli := range room.Clients {
-		if cli.Name != client.Name {
-			client.out <- msg
-		}
+		cli.out <- msg
 	}
 }
 
