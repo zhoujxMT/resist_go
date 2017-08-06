@@ -132,10 +132,19 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 
 func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan *Message, sender chan<- *Message, done <-chan bool, disconnect chan<- int, err <-chan error, session *middleware.WxSessionManager) (int, string) {
 	thridKey := req.URL.Query().Get("thirdKey")
+	isWechat := req.URL.Query().Get("isWeChat")
 	roomName := params["name"]
 	// 添加测试账号
-	testUser := &db.User{OpenID: "TEST", NickName: "Test", AvatarURL: "XXX", Gender: "男"}
-	cli := Client{Name: thridKey, UserInfo: testUser, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
+	var cli Client
+	var userInfo *db.User
+	if isWechat == "true" {
+		u, _ := session.Get(thridKey, "userInfo")
+		userInfo = u.(*db.User)
+	} else {
+		userInfo = &db.User{OpenID: "TEST", NickName: "Test",
+			AvatarURL: "http://img.qq745.com/uploads/allimg/160630/8-160630152935.jpg", Gender: "男"}
+	}
+	cli = Client{Name: thridKey, UserInfo: userInfo, in: recevier, out: sender, done: done, err: err, diconnect: disconnect}
 	room := chat.GetRoomByName(roomName)
 	if room == nil {
 		return 404, "{errorInfo:'can't find room'}"

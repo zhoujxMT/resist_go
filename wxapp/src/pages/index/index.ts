@@ -1,14 +1,14 @@
 import { WeApp } from '../../common/common';
+import {Promise} from '../../plugin/es6-promise.js'
 
 const app: WeApp = getApp() as WeApp;
 
 interface RoomSizeObj{
-    id:number;
-    name:string;
+    roomSize:number
 }
 interface IndexPageData {
     index:number;
-    rangeRooms:object[];
+    rangeRooms:RoomSizeObj[];
     pickList:string[];
 }
 
@@ -30,12 +30,39 @@ class IndexPage {
     
     public bindPickRoomSize(e): void{
         console.log(e.detail.value)
-    }
-
-    public bindViewTap(): void {
+        var roomSizeObj = this.data.rangeRooms[e.detail.value]
         wx.navigateTo({
-            url: '../logs/logs'
-        });
+            url:"../game/game"
+        })
+        // this._createRoom(roomSizeObj.roomSize).then((res)=>{
+        //     wx.redirectTo({
+        //         url:"../game/game"
+        //     })
+        // }).catch((res)=>{
+        //     wx.showToast({
+        //         title:"服务器提了一个问题",
+        //         icon:"loading"
+        //     })
+        // })
+    }
+    public _createRoom(roomSize:number){
+        return new Promise((resolve:(res:wx.RequestResult)=>void,reject:(res:wx.RequestResult)=>void)=>{
+            wx.request({
+                url:"http://127.0.0.1:3000/room",
+                method:"POST",
+                data:{
+                    roomSize:roomSize
+                },
+                success:res=>{
+                    if (res.statusCode == 200){
+                        resolve(res)
+                    }else{
+                        reject(res)
+                    }
+                }
+            })
+        })
+
     }
 }
 

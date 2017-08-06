@@ -1,0 +1,31 @@
+<view class="game-room">
+    <view class="game-users">
+        <view class="captain"></view>
+        <scrool-view class="user-list"></scrool-view>
+    </view>
+    <scroll-view class="game-content" scroll-x="false" scroll-y="true">
+
+    </scroll-view>
+    <view class="game-submit">
+        <input placeholder="聊天"></input>
+        <button type="primary" size="mini" plain="true">发送</button>
+    </view>
+</view>
+<view class="game-wait-hidden">
+    <view class="game-wait-users">
+        <view class="block"></view>
+        <view class="block"></view>
+        <view class="block"></view>
+        <view class="block"></view>
+        <view class="block"></view>
+    </view>
+    <view>分享本页面邀请你的好友进来吧！</view>
+    <view class="share-btn"><button type="primary" plain="true">点击分享</button></view>
+</view>
+
+<view class="game-init">
+    <view class="init-msg-show" animation="{{initAnimationData}}">{{ initMsg }}</view>
+    <view class="team-show">
+
+    </view>
+</view>
