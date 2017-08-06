@@ -18,12 +18,15 @@
     "gulp-sass-china": "^3.1.0",
     "gulp-typescript": "^3.2.1",
     "gulp-uglify": "^3.0.0",
+    "node-sass": "^4.5.3",
     "path": "^0.12.7",
     "typescript": "^2.4.2"
   },
   "dependencies": {
     "gulp": "^3.9.1",
+    "gulp-imagemin": "^3.3.0",
     "gulp-rename": "^1.2.2",
+    "node-sass": "^4.5.3",
     "stream-combiner2": "^1.1.1"
   }
 }

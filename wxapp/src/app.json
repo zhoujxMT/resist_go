@@ -1,12 +1,29 @@
 {
   "pages":[
     "pages/index/index",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/ranking/ranking",
+    "pages/abort/abort"
   ],
   "window":{
     "backgroundTextStyle":"light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "抵抗组织Go",
     "navigationBarTextStyle":"black"
+  },
+  "tabBar":{
+    "list":[{
+      "pagePath":"pages/index/index",
+      "text":"欢迎",
+      "iconPath":"assets/icons/index.png"
+    },{
+      "pagePath":"pages/ranking/ranking",
+      "text":"排行榜",
+      "iconPath":"assets/icons/ranking.png"
+    },{
+      "pagePath":"pages/abort/abort",
+      "text":"关于",
+      "iconPath":"assets/icons/abort.png"
+    }]
   }
 }

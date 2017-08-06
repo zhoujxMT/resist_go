@@ -11,8 +11,9 @@ type User struct {
 	NickName   string    `xorm:"varchar(50) not null"`       // 用户昵称
 	AvatarURL  string    `xorm:"varchar(50) not null"`       // 用户头像
 	Gender     string    `xorm:"varchar(50) not null"`       // 用户性别
-	CretedDate time.Time `xorm:"datetime created"`           // 创建时间
-	UpdateDate time.Time `xorm:"datetime updated"`           // 上次更新用户信息的时间
+	Core       string    `xorm:"int(11) default(0)"`
+	CretedDate time.Time `xorm:"datetime created"` // 创建时间
+	UpdateDate time.Time `xorm:"datetime updated"` // 上次更新用户信息的时间
 }
 
 func (this *User) GetUserByOpenId(openID string) (*User, bool) {

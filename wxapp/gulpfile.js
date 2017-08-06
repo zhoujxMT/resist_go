@@ -11,6 +11,7 @@ var tsProject = ts.createProject("tsconfig.json")
 var minifycss = require('gulp-minify-css')
 const combiner = require('stream-combiner2');
 const rename = require('gulp-rename')
+const imageMin = require('gulp-imagemin')
 
 const handleError = function(err) {
   console.log('\n')
@@ -30,6 +31,15 @@ gulp.task("json", () => {
 gulp.task("wxml", () => {
     return gulp.src('./src/**/*.wxml').
         pipe(gulp.dest('./dist'))
+});
+
+gulp.task("assets", ()=>{
+    return gulp.src('./src/assets/**/*.*')
+    .pipe(gulp.dest('./dist/assets'))
+})
+gulp.task("image", ()=>{
+    return gulp.src('./src/images/*.png').
+    pipe(gulp.dest('./dist/images'))
 })
 
 gulp.task("wxss", () => {
@@ -104,18 +114,26 @@ gulp.task("tsPro", () => {
     pipe(gulp.dest("./dist"))
 })
 
+gulp.task("imageMin", ()=>{
+    return gulp.src('./src/images/*.*').
+    pipe(imageMin({progressive: true}))
+    pipe(gulp.dest('./dist/images'))
+})
+
 //命令
-gulp.task("dev", ["json", "wxml", "wxss", "js", "ts"])
+gulp.task("dev", ["json", "wxml", "wxss", "js", "ts","assets","image"])
 gulp.task("clean", () => {
     return del(['./dist**'])
 })
-gulp.task("build", ["jsonPro", "wxmlPro", "wxssPro", "jsPro", "tsPro"])
+gulp.task("build", ["jsonPro", "wxmlPro", "wxssPro", "jsPro", "tsPro","assets","imageMin"])
 gulp.task("default", ["dev"])
 gulp.task("watch", () => {
     gulp.watch('./src/**/*.json', ["json"]);
     gulp.watch('./src/**/*.ts', ['ts']);
     gulp.watch('./src/**/*.js', ['js']);
     gulp.watch('./src/**/*.wxml', ['wxml']);
-    gulp.watch('./src/**/*.sass', ['wxss']);
+    gulp.watch('./src/**/*.scss', ['wxss']);
     gulp.watch('./src/**/*.wxss', ['wxss']);
+    gulp.watch('./src/images/*.*', ['image']);
+    gulp.watch('./src/assets/**/*.*',['assets'])
 })
