@@ -3,6 +3,7 @@
     height: 600rpx;
     width:  600rpx;
 }
+
 .logo-con{
     height: 100%;
 }
@@ -10,3 +11,4 @@
     width: 80%;
     margin-bottom: 100rpx;
 }
+

@@ -1,7 +1,8 @@
-<!--index.wxml-->
 <view class="container-default logo-con">
     <image class="logo" src="/images/resist_logo.png"></image>
     <view class="btn-room">
-      <button type="primary" class="btn" plain="true" bind-tap >创建房间</button>
+      <picker bindchange="bindPickRoomSize" value="{{index}}" range="{{pickList}}" mode="selector">
+        <button type="primary" class="btn" plain="true" bind-tap="createRoom" >创建房间</button>
+      </picker>
     </view>
-</view>
+  </view>

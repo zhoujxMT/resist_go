@@ -76,10 +76,7 @@ class WeAppClass implements WeApp {
     }
 
     public onLaunch(): void {
-        //调用API从本地缓存中获取数据
-        const logs = wx.getStorageSync('logs') || [];
-        logs.unshift(Date.now());
-        wx.setStorageSync('logs', logs);
+        // 启动便向服务器提交自己的信息
         this.loginResistServer()
     }
 
