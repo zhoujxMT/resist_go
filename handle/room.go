@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"math/rand"
 	"sync"
+	"fmt"
 )
 
 type InitInfo struct {
@@ -98,7 +99,9 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
 	jsonUserInfo := &ChatUserInfo{client.Name, client.UserInfo.NickName, client.UserInfo.AvatarURL}
 	body, _ := json.Marshal(jsonUserInfo)
+	fmt.Println(string(body))
 	joinMsg.Body = string(body)
+	fmt.Println(len(room.ClientNameList()))
 	if len(room.ClientNameList()) < room.RoomSize-1 {
 		room.Clients[clientName] = client // 加入房间的客户端池
 		room.Captains = append(room.Captains, clientName)
@@ -112,13 +115,13 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 		room.TurnsTalkList.PushBack(clientName)
 		// 增加一个发言队列的标记
 		room.TurnsTalkList.PushBack("END")
+		room.BroadcastMessage(joinMsg, client)
 		// 发送一个标记告诉客户端人满了
 		for _, cli := range room.Clients {
 			readyMsg := &Message{From: "STSTEM", EventName: "READY"}
 			cli.out <- readyMsg
 		}
 		// 初始化第一局游戏的信息
-		room.BroadcastMessage(joinMsg, client)
 		room.InitRoomGame()
 		return true
 	} else {

@@ -17,6 +17,7 @@ interface GameData {
     initMsgShow: boolean
     showTeamAnimationData: any
     initViewAnimationData: any
+    waitFinashAnimationData: any
     roomUsers: any[] //房间用户列表
 }
 
@@ -29,6 +30,7 @@ class GamePage implements GamePage {
         initMsgShow: false,
         showTeamAnimationData: {},
         initViewAnimationData: {},
+        waitFinashAnimationData: {},
         roomUsers: []
     }
 
@@ -53,11 +55,12 @@ class GamePage implements GamePage {
         wx.onSocketError((res) => {
             console.log("啊哦,服务器提出了一个问题")
             wx.redirectTo({
-                url: "../index/inde"
+                url: "../index/index"
             })
         })
         wx.onSocketMessage((res) => {
             let jsonData = JSON.parse(res.data)
+            console.log(jsonData)
             this._handleSocketMsg(jsonData)
         })
     }
@@ -69,30 +72,50 @@ class GamePage implements GamePage {
                 this.setData({
                     roomUsers: userInfoList
                 })
-                for(let u of userInfoList){
+                for (let u of userInfoList) {
                     this.userInfoCache[u.name] = u
                 }
+                console.log(this.userInfoCache)
                 break;
             case "JOIN":
                 // 加入房间
                 let userInfo = JSON.parse(msg.body)
+                console.log(userInfo)
                 let users = this.data.roomUsers
                 users.push(userInfo)
                 this.setData({
-                    roomUsers:users
+                    roomUsers: users
                 })
                 this.userInfoCache[userInfo.name] = userInfo
+                console.log(this.userInfoCache)
                 break;
+            case "READY":
+                //开始结束等待的界面
+                this.waitFinashAnimition()
+                //开始初始化信息的界面
+                this.initAnimition()
             default:
                 break;
         }
     }
-    // 当获取到GetUsers信息时
-        private initAnimition(): void {
+    private waitFinashAnimition(): void {
+        var waitAnimation = wx.createAnimation({
+            duration: 3000,
+            timingFunction: "ease-in"
+        })
+        waitAnimation.rotate(180).opacity(0).rotate(180).step()
+        this.setData({
+            waitFinashAnimition: waitAnimation.export()
+        })
+
+    }
+
+    private initAnimition(): void {
         // 初始提示信息的动画
         var animation = wx.createAnimation({
             duration: 3000,
             timingFunction: 'ease-in',
+            delay: 3000
         })
         // 初始Team的动画
         var initViewAnimation = wx.createAnimation({
@@ -111,7 +134,7 @@ class GamePage implements GamePage {
         this.setData({
             initAnimationData: animation.export()
         })
-        promiseAnimition(3000).then(() => {
+        promiseAnimition(6000).then(() => {
             animation.opacity(0).step()
             this.setData({
                 initAnimationData: animation.export()

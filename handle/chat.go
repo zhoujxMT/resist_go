@@ -24,7 +24,7 @@ type CreateRoomInfo struct {
 	RoomSize int `json:"roomSize"`
 }
 type ChatUserInfo struct {
-	name      string `json:nickName`
+	Name      string `json:"name"`
 	NickName  string `json:"nickName"`
 	AvatarURL string `json:"avatarUrl"`
 }
@@ -150,7 +150,10 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 	if room == nil {
 		return 404, "{errorInfo:'can't find room'}"
 	}
-	room.AddClient(thridKey, &cli)
+	ok := room.AddClient(thridKey, &cli)
+	if ok == false{
+		return 404,`{"errorInfo":"can't find room"}`
+	}
 	cli.out <- room.GetUserList()
 	for {
 		select {

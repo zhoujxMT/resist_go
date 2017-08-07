@@ -57,14 +57,14 @@
 .game-wait-users{
     display: flex;
     width: 90%;
-    height: 20%;
     flex-flow:row wrap;
     align-content:flex-start;
     .game-wait-user-box{
         text-align:center;
-        height: 120rpx;
         width: 150rpx;
         font-size: 20rpx;
+        margin-bottom:20rpx;
+        margin-top:10rpx;
         image {
             height:120rpx;
             width:120rpx;
