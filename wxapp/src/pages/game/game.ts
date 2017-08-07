@@ -90,6 +90,8 @@ class GamePage implements GamePage {
                 console.log(this.userInfoCache)
                 break;
             case "READY":
+                this.waitFinashAnimition()
+                this.initAnimition()
                 break;
             //开始结束等待的界面
             // this.waitFinashAnimition()
@@ -101,12 +103,17 @@ class GamePage implements GamePage {
     }
     private waitFinashAnimition(): void {
         var waitAnimation = wx.createAnimation({
-            duration: 3000,
+            duration: 1500,
             timingFunction: "ease-in"
         })
         waitAnimation.rotate(180).opacity(0).step()
         this.setData({
             waitData: waitAnimation.export()
+        })
+        promiseAnimition(1500).then(()=>{
+            this.setData({
+                waitShow:true
+            })
         })
 
     }
@@ -116,7 +123,6 @@ class GamePage implements GamePage {
         var animation = wx.createAnimation({
             duration: 3000,
             timingFunction: 'ease-in',
-            delay: 3000
         })
         // 初始Team的动画
         var initViewAnimation = wx.createAnimation({
@@ -135,7 +141,7 @@ class GamePage implements GamePage {
         this.setData({
             initAnimationData: animation.export()
         })
-        promiseAnimition(6000).then(() => {
+        promiseAnimition(3000).then(() => {
             animation.opacity(0).step()
             this.setData({
                 initAnimationData: animation.export()
@@ -168,7 +174,8 @@ class GamePage implements GamePage {
             return promiseAnimition(3000)
         }).then(() => {
             this.setData({
-                initMsgShow: true
+                initMsgShow: true,
+                waitShow:true
             })
         })
 
