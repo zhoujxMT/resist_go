@@ -11,7 +11,7 @@
         <button type="primary" size="mini" plain="true">发送</button>
     </view>
 </view>
-<view class="game-wait-hidden">
+<view class="game-wait" hidden="{{waitShow}}">
     <view class="game-wait-users">
         <view class="block"></view>
         <view class="block"></view>
@@ -23,9 +23,9 @@
     <view class="share-btn"><button type="primary" plain="true">点击分享</button></view>
 </view>
 
-<view class="game-init">
+<view class="game-init" hidden="{{initMsgShow}}" animation="{{initViewAnimationData}}">
     <view class="init-msg-show" animation="{{initAnimationData}}">{{ initMsg }}</view>
-    <view class="team-show">
+    <view class="team-show" animation="{{showTeamAnimationData}}">
 
     </view>
 </view>

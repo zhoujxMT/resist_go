@@ -51,12 +51,7 @@
     width: 100%;
     height: 100%;
     background-color: whitesmoke;
-    z-index: 1001;
-}
-.game-wait-hidden{
-    @extend .game-wait;
-    visibility: hidden;
-    
+    z-index: 1003;
 }
 
 .game-wait-users{
@@ -76,14 +71,20 @@
 .game-init{
     @include flex-cloumn-center;
     @include abblock;
-    z-index: 1000;
+    opacity: 1;
+    z-index: 1002;
     background-color:black;
     color: white;
     .init-msg-show{
-        width: 80%
+        text-align: center;
+        width: 80%;
+        opacity: 0;
     }
-}
-.game-init-hidden{
-    @extend .game-init;
-    visibility: hidden;
+    .team-show{
+        background-color:cyan;
+        height: 20%;
+        text-align: center;
+        width: 80%;
+        opacity: 0;
+    }
 }
