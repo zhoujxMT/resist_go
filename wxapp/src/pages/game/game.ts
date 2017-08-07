@@ -17,7 +17,7 @@ interface GameData {
     initMsgShow: boolean
     showTeamAnimationData: any
     initViewAnimationData: any
-    waitFinashAnimationData: any
+    waitData: any
     roomUsers: any[] //房间用户列表
 }
 
@@ -30,7 +30,7 @@ class GamePage implements GamePage {
         initMsgShow: false,
         showTeamAnimationData: {},
         initViewAnimationData: {},
-        waitFinashAnimationData: {},
+        waitData: {},
         roomUsers: []
     }
 
@@ -90,10 +90,11 @@ class GamePage implements GamePage {
                 console.log(this.userInfoCache)
                 break;
             case "READY":
-                //开始结束等待的界面
-                this.waitFinashAnimition()
-                //开始初始化信息的界面
-                this.initAnimition()
+                break;
+            //开始结束等待的界面
+            // this.waitFinashAnimition()
+            //开始初始化信息的界面
+            // this.initAnimition()
             default:
                 break;
         }
@@ -103,9 +104,9 @@ class GamePage implements GamePage {
             duration: 3000,
             timingFunction: "ease-in"
         })
-        waitAnimation.rotate(180).opacity(0).rotate(180).step()
+        waitAnimation.rotate(180).opacity(0).step()
         this.setData({
-            waitFinashAnimition: waitAnimation.export()
+            waitData: waitAnimation.export()
         })
 
     }

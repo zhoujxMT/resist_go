@@ -122,7 +122,6 @@ func ResistGameHandle(room *Room, msg *Message, cli *Client) {
 				agr, _ := room.CountVote("mission")
 				missionsHandle(room, msg, cli, agr)
 			}
-			fmt.Println("坏蛋分数", room.BadGuysWins, "好人分数", room.GoodManWins)
 			if room.BadGuysWins >= 3 {
 				var gameMsg *Message
 				gameMsg = &Message{From: "SYSTEM", EventName: "GAMEOVER", Body: "BADMANWINS"}

@@ -11,7 +11,7 @@
         <button type="primary" size="mini" plain="true">发送</button>
     </view>
 </view>
-<view class="game-wait" hidden="{{waitShow}}" animation="{{waitFinashAnimationData}}">
+<view class="game-wait" hidden="{{waitShow}}" animation="{{waitData}}">
     <view class="game-wait-users">
         <view wx:for="{{roomUsers}}" class="game-wait-user-box">
             <image class="wait-user-avatar" src="{{item.avatarUrl}}"></image>
