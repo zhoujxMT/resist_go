@@ -17,10 +17,11 @@ interface GameData {
     initMsgShow: boolean
     showTeamAnimationData: any
     initViewAnimationData: any
-    roomUsers: any //房间用户列表
+    roomUsers: any[] //房间用户列表
 }
 
 class GamePage implements GamePage {
+    userInfoCache: { [name: string]: any } = {}
     public data: GameData = {
         waitShow: false,
         initAnimationData: {},
@@ -28,7 +29,7 @@ class GamePage implements GamePage {
         initMsgShow: false,
         showTeamAnimationData: {},
         initViewAnimationData: {},
-        roomUsers: {}
+        roomUsers: []
     }
 
     public onLoad(): void {
@@ -68,30 +69,26 @@ class GamePage implements GamePage {
                 this.setData({
                     roomUsers: userInfoList
                 })
+                for(let u of userInfoList){
+                    this.userInfoCache[u.name] = u
+                }
+                break;
+            case "JOIN":
+                // 加入房间
+                let userInfo = JSON.parse(msg.body)
+                let users = this.data.roomUsers
+                users.push(userInfo)
+                this.setData({
+                    roomUsers:users
+                })
+                this.userInfoCache[userInfo.name] = userInfo
                 break;
             default:
                 break;
         }
     }
-
     // 当获取到GetUsers信息时
-    private _onGetUsers(msg) {
-        let userInfoList = JSON.parse(msg.body)
-        let roomUsers: any[] = []
-        for (var u in userInfoList) {
-            let roomUser: any = {}
-            roomUser.name = {
-                nickName: u['nickName'],
-                avatarUrl: u['avatarUrl']
-            }
-            roomUsers.push(roomUser)
-        }
-        this.setData({
-            roomUserList: roomUsers
-        })
-    }
-
-    private initAnimition(): void {
+        private initAnimition(): void {
         // 初始提示信息的动画
         var animation = wx.createAnimation({
             duration: 3000,

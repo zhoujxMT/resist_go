@@ -96,7 +96,7 @@ func (room *Room) AddClient(clientName string, client *Client) bool {
 	defer room.Unlock()
 	// 通知其他用户发送
 	joinMsg := &Message{From: "SYSTEM", EventName: "JOIN"}
-	jsonUserInfo := &ChatUserInfo{client.UserInfo.NickName, client.UserInfo.AvatarURL}
+	jsonUserInfo := &ChatUserInfo{client.Name, client.UserInfo.NickName, client.UserInfo.AvatarURL}
 	body, _ := json.Marshal(jsonUserInfo)
 	joinMsg.Body = string(body)
 	if len(room.ClientNameList()) < room.RoomSize-1 {

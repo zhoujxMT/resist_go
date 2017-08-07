@@ -24,6 +24,7 @@ type CreateRoomInfo struct {
 	RoomSize int `json:"roomSize"`
 }
 type ChatUserInfo struct {
+	name      string `json:nickName`
 	NickName  string `json:"nickName"`
 	AvatarURL string `json:"avatarUrl"`
 }
@@ -114,7 +115,7 @@ func ResistSocket(req *http.Request, params martini.Params, recevier <-chan *Mes
 				// 处理掉线
 				room.RemoveClient(cli.Name)
 				msg := &Message{From: thridKey, EventName: "DISCONTENT"}
-				chatUserInfo := &ChatUserInfo{cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
+				chatUserInfo := &ChatUserInfo{cli.Name, cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
 				body, _ := json.Marshal(chatUserInfo)
 				msg.Body = string(body)
 				room.BroadcastMessage(msg, &cli)
@@ -162,7 +163,7 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 			// 处理掉线
 			room.RemoveClient(cli.Name)
 			msg := &Message{From: thridKey, EventName: "DISCONTENT"}
-			chatUserInfo := &ChatUserInfo{cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
+			chatUserInfo := &ChatUserInfo{cli.Name, cli.UserInfo.NickName, cli.UserInfo.AvatarURL}
 			body, _ := json.Marshal(chatUserInfo)
 			msg.Body = string(body)
 			room.Lock()
