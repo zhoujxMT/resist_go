@@ -25,6 +25,10 @@
 <view class="game-init" hidden="{{initMsgShow}}" animation="{{initViewAnimationData}}">
     <view class="init-msg-show" animation="{{initAnimationData}}">{{ initMsg }}</view>
     <view class="team-show" animation="{{showTeamAnimationData}}">
-
+        <view>你的队友是.....</view>
+        <view wx:for="{{teamList}}" class="game-team-list">
+            <image src="{{item.avatarUrl}}"></image>
+            <view team-user-name>{{item.nickName}}</view>
+        </view>
     </view>
 </view>

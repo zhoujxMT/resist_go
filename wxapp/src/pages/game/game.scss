@@ -1,51 +1,55 @@
-.game-room{
+.game-room {
     display: flex;
     height: 100%;
     flex-direction: column;
     align-items: center;
 }
 
-.game-users{
+.game-users {
     display: flex;
     height: 10%;
     width: 100%;
-    .captain{
+    .captain {
         width: 20%;
     }
-    .user-list{
+    .user-list {
         width: 80%;
     }
 }
-.game-content{
+
+.game-content {
     height: 85%;
     width: 100%;
 }
-.game-submit{
+
+.game-submit {
     display: flex;
     height: 5%;
     width: 100%;
-    input{
+    input {
         width: 80%
     }
-    button{
-        width:20%
+    button {
+        width: 20%
     }
 }
 
-@mixin abblock{
+@mixin abblock {
     position: absolute;
     left: 0rpx;
-    top:0rpx;
+    top: 0rpx;
     width: 102%;
     height: 100%;
 }
-@mixin flex-cloumn-center{
+
+@mixin flex-cloumn-center {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-.game-wait{
+
+.game-wait {
     @include abblock;
     @include flex-cloumn-center;
     width: 100%;
@@ -54,50 +58,61 @@
     z-index: 1003;
 }
 
-.game-wait-users{
+.game-wait-users {
     display: flex;
     width: 90%;
-    flex-flow:row wrap;
-    align-content:flex-start;
-    .game-wait-user-box{
-        text-align:center;
+    flex-flow: row wrap;
+    align-content: flex-start;
+    .game-wait-user-box {
+        text-align: center;
         width: 150rpx;
         font-size: 20rpx;
-        margin-bottom:20rpx;
-        margin-top:10rpx;
+        margin-bottom: 20rpx;
+        margin-top: 10rpx;
         image {
-            height:120rpx;
-            width:120rpx;
+            height: 120rpx;
+            width: 120rpx;
         }
     }
-
 }
-.block{
+
+.block {
     height: 200rpx;
     width: 200rpx;
     background-color: black
 }
-.share-btn{
+
+.share-btn {
     margin-top: 250rpx;
 }
 
-.game-init{
+.game-init {
     @include flex-cloumn-center;
     @include abblock;
     opacity: 1;
     z-index: 1002;
-    background-color:black;
+    background-color: black;
     color: white;
-    .init-msg-show{
+    .init-msg-show {
         text-align: center;
         width: 80%;
         opacity: 0;
     }
-    .team-show{
-        background-color:cyan;
+    .team-show {
         height: 20%;
         text-align: center;
         width: 80%;
         opacity: 0;
+        .team-warper {
+            @include flex-cloumn-center;
+            .game-team-list {
+                image {
+                    height: 120rpx;
+                    width: 120rpx;
+                }
+                display: flex;
+                align-items: center;
+            }
+        }
     }
 }
