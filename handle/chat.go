@@ -150,6 +150,7 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 		return 404, "{errorInfo:'can't find room'}"
 	}
 	room.AddClient(thridKey, &cli)
+	cli.out <- room.GetUserList()
 	for {
 		select {
 		case <-cli.err:
@@ -167,10 +168,10 @@ func ResistSocketTest(req *http.Request, params martini.Params, recevier <-chan 
 			room.Lock()
 			room.BroadcastMessage(msg, &cli)
 			room.Unlock()
-			if len(room.ClientNameList()) == 0 {
-				chat.RemoveChat(roomName)
-			}
-			return 200, "ok"
+			// if len(room.ClientNameList()) == 0 {
+			// 	chat.RemoveChat(roomName)
+			// }
+			// return 200, "ok"
 		}
 	}
 }

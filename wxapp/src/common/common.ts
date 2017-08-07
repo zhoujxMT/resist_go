@@ -4,4 +4,5 @@ export interface WeApp extends IApp {
     };
 
     getUserInfo(cb: (info: wx.IData) => void): void;
+    getUserThirdKey():string;
 }

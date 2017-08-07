@@ -350,7 +350,7 @@ declare namespace wx {
         /**
          * 服务器返回的消息
          */
-        data: string | any[];
+        data: string;
     }
 
     /**

@@ -61,14 +61,14 @@ func LoginWechatUser(req *http.Request, config *conf.Config, session *middleware
 		// 如果大于七天，则让小程序重新拉取用户信息进行更新
 		if days > 7 {
 			thirdKey := createThirdPatyKey(wxsessionKey, u, session)
-			rspStr := fmt.Sprintf("{'errorInfo':'userinfo need to update','thirdKey':'%s'}", thirdKey)
+			rspStr := fmt.Sprintf(`{"errorInfo":"userinfo need to update","thirdKey":"%s"}`, thirdKey)
 			return 403, rspStr
 		}
 		// 将用户信息存放在session当中,并返回第三方sessionkey，防止官方session在网络中传输
 		thirdKey := createThirdPatyKey(wxsessionKey, u, session)
 		// 保存用户信息
 		session.Set(thirdKey, "userInfo", u)
-		rspStr := fmt.Sprintf("{'thirdKey':'%s'}", thirdKey)
+		rspStr := fmt.Sprintf(`{"thirdKey":"%s"}`, thirdKey)
 		return 200, rspStr
 	} else {
 		thirdKey := createThirdPatyKey(wxsessionKey, u, session)
@@ -115,7 +115,7 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 			u.Gender = gender
 			u.Update()
 			session.Set(wechatUserData.ThirdKey, "userInfo", u)
-			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.ThirdKey)
+			rsp := fmt.Sprintf(`{"thirdKey":"%s"}`, wechatUserData.ThirdKey)
 			return 200, rsp
 
 		} else {
@@ -130,11 +130,11 @@ func RegisterWechatUser(req *http.Request, config *conf.Config, session *middlew
 			newUser := db.User{OpenID: userinfo.OpenID, NickName: userinfo.NickName, AvatarURL: userinfo.AvatarUrl, Gender: gender}
 			session.Set(wechatUserData.ThirdKey, "userInfo", &newUser)
 			newUser.Insert()
-			rsp := fmt.Sprintf("{'thirdKey':'%s'}", wechatUserData.ThirdKey)
+			rsp := fmt.Sprintf(`{"thirdKey":"%s"}`, wechatUserData.ThirdKey)
 			return 200, rsp
 		}
 	} else {
-		rsp := fmt.Sprintf("{'errorInfo':'You Must Be wx.login'}")
+		rsp := fmt.Sprintf(`{"errorInfo":"You Must Be wx.login"}`)
 		return 404, rsp
 	}
 

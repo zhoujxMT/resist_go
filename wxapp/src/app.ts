@@ -1,6 +1,60 @@
 import { WeApp } from './common/common'
 import {Promise}from './plugin/es6-promise.js'
 
+
+
+class WeAppClass implements WeApp {
+
+    public get globalData() {
+        return {
+            userInfo: null,
+            thirdKey: null,
+            userRes: null
+        }
+    }
+
+    public onLaunch(): void {
+        // 启动便向服务器提交自己的信息
+        this.loginResistServer()
+    }
+
+
+
+
+
+    public loginResistServer(): void {
+        var temp = {
+            code: null,
+            userRes:null
+        }
+        _wxLogin().then((code: string) => {
+            temp.code = code
+            return _promiseGetUserInfo()
+        }).then((res: wx.GetUserInfoResult) => {
+            this.globalData.userInfo = res.userInfo
+            temp.userRes = res
+            return _loginServer(temp.code)
+        }).then((res:wx.RequestResult)=>{
+            console.log(res.data)
+            this.globalData.thirdKey = res.data.thirdKey
+            console.log(this.globalData.thirdKey)
+        },(res:wx.RequestResult) =>{
+            this.globalData.thirdKey = res.data.thirdKey
+            return _registerServer(temp.userRes, res.data.thirdKey)
+        })
+
+    }
+
+    public getUserInfo(cb: (info: wx.IData) => void): void {
+        if (this.globalData.userInfo) {
+            typeof cb == "function" && cb(this.globalData.userInfo);
+        }
+    }
+    public getUserThirdKey():string{
+        return this.globalData.thirdKey
+    }
+}
+
 function _wxLogin() {
     return new Promise((resolve, reject) => {
         wx.login({
@@ -63,55 +117,6 @@ function _promiseGetUserInfo() {
             }
         })
     })
-}
-
-class WeAppClass implements WeApp {
-
-    public get globalData() {
-        return {
-            userInfo: null,
-            thirdKey: null,
-            userRes: null
-        }
-    }
-
-    public onLaunch(): void {
-        // 启动便向服务器提交自己的信息
-        this.loginResistServer()
-    }
-
-
-
-
-
-    public loginResistServer(): void {
-        var temp = {
-            code: null,
-            userRes:null
-        }
-        _wxLogin().then((code: string) => {
-            temp.code = code
-            return _promiseGetUserInfo()
-        }).then((res: wx.GetUserInfoResult) => {
-            this.globalData.userInfo = res.userInfo
-            temp.userRes = res
-            return _loginServer(temp.code)
-        }).then((res:wx.RequestResult)=>{
-            this.globalData.thirdKey = res.data.thirdKey
-        },(res:wx.RequestResult) =>{
-            console.log(temp.userRes)
-            this.globalData.thirdKey = res.data.thirdKey
-            console.log(res.data)
-            return _registerServer(temp.userRes, res.data.thirdKey)
-        })
-
-    }
-
-    public getUserInfo(cb: (info: wx.IData) => void): void {
-        if (this.globalData.userInfo) {
-            typeof cb == "function" && cb(this.globalData.userInfo);
-        }
-    }
 }
 
 App(new WeAppClass());

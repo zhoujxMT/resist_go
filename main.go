@@ -59,7 +59,7 @@ func RouterConfig(m *martini.ClassicMartini) {
 	m.Post("/room", handle.HandleCreateRoom)
 	m.Get("/game/room/:name", sockets.JSON(handle.Message{}), handle.ResistSocket)
 	socketOption := &sockets.Options{}
-	socketOption.AllowedOrigin = "http?://127.0.0.1:3000$"
+	socketOption.AllowedOrigin = "http?://(.*)$"
 	m.Get("/game/testroom/:name", sockets.JSON(handle.Message{}, socketOption), handle.ResistSocketTest)
 	m.Get("/test", func(r render.Render) {
 		r.HTML(200, "test", "")

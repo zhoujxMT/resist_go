@@ -36,7 +36,7 @@
     position: absolute;
     left: 0rpx;
     top:0rpx;
-    width: 100%;
+    width: 102%;
     height: 100%;
 }
 @mixin flex-cloumn-center{
@@ -58,6 +58,19 @@
     display: flex;
     width: 90%;
     height: 20%;
+    flex-flow:row wrap;
+    align-content:flex-start;
+    .game-wait-user-box{
+        text-align:center;
+        height: 120rpx;
+        width: 150rpx;
+        font-size: 20rpx;
+        image {
+            height:120rpx;
+            width:120rpx;
+        }
+    }
+
 }
 .block{
     height: 200rpx;

@@ -1,96 +1,162 @@
 interface GamePage extends IPage {
 
 }
-interface GameData {
-    waitShow:boolean
-    initAnimationData: any
-    initMsg: string
-    initMsgShow:boolean
-    showTeamAnimationData: any
-    initViewAnimationData:any
+import { WeApp } from '../../common/common'
+
+const app: WeApp = getApp() as WeApp;
+
+interface RoomUserInfo {
+    nickName: string
+    avatarUrl: string
 }
 
-class GamePage {
-    showMsgAnimation: wx.Animation
+interface GameData {
+    waitShow: boolean
+    initAnimationData: any
+    initMsg: string
+    initMsgShow: boolean
+    showTeamAnimationData: any
+    initViewAnimationData: any
+    roomUsers: any //房间用户列表
+}
+
+class GamePage implements GamePage {
     public data: GameData = {
-        waitShow:true,
+        waitShow: false,
         initAnimationData: {},
         initMsg: "天黑请闭眼",
-        initMsgShow:false,
+        initMsgShow: false,
         showTeamAnimationData: {},
-        initViewAnimationData:{}
+        initViewAnimationData: {},
+        roomUsers: {}
     }
+
+    public onLoad(): void {
+
+    }
+
+
     public onShow(): void {
-        this.initAnimition()
-
+        var thirdKey: string = app.getUserThirdKey()
+        this.wechatSockets(`ws://localhost:3000/game/testroom/test?thirdKey=${thirdKey}&isWeChat=true`)
     }
 
-    public initAnimition():void{
+
+    private wechatSockets(wss: string): void {
+        wx.connectSocket({
+            url: wss,
+        })
+        wx.onSocketOpen((res) => {
+            console.log("已打开")
+        })
+        wx.onSocketError((res) => {
+            console.log("啊哦,服务器提出了一个问题")
+            wx.redirectTo({
+                url: "../index/inde"
+            })
+        })
+        wx.onSocketMessage((res) => {
+            let jsonData = JSON.parse(res.data)
+            this._handleSocketMsg(jsonData)
+        })
+    }
+
+    private _handleSocketMsg(msg) {
+        switch (msg.eventName) {
+            case "GET_USERS":
+                let userInfoList = JSON.parse(msg.body)
+                this.setData({
+                    roomUsers: userInfoList
+                })
+                break;
+            default:
+                break;
+        }
+    }
+
+    // 当获取到GetUsers信息时
+    private _onGetUsers(msg) {
+        let userInfoList = JSON.parse(msg.body)
+        let roomUsers: any[] = []
+        for (var u in userInfoList) {
+            let roomUser: any = {}
+            roomUser.name = {
+                nickName: u['nickName'],
+                avatarUrl: u['avatarUrl']
+            }
+            roomUsers.push(roomUser)
+        }
+        this.setData({
+            roomUserList: roomUsers
+        })
+    }
+
+    private initAnimition(): void {
         // 初始提示信息的动画
         var animation = wx.createAnimation({
             duration: 3000,
             timingFunction: 'ease-in',
-            })
+        })
         // 初始Team的动画
         var initViewAnimation = wx.createAnimation({
-                duration:3000,
-                timingFunction:'ease-in'
-            })
+            duration: 3000,
+            timingFunction: 'ease-in'
+        })
         // 队友Team动画
         var teamAnimation = wx.createAnimation({
-                duration:3000,
-                timingFunction:'ease-in'
-            })
+            duration: 3000,
+            timingFunction: 'ease-in'
+        })
 
 
         // 初始化动画集合
         animation.opacity(1).step()
         this.setData({
-            initAnimationData:animation.export()
+            initAnimationData: animation.export()
         })
-        promiseAnimition(3000).then(()=>{
+        promiseAnimition(3000).then(() => {
             animation.opacity(0).step()
             this.setData({
-                initAnimationData:animation.export()
+                initAnimationData: animation.export()
             })
-            return promiseAnimition(3000,"你的身份是：间谍")
-        }).then((data)=>{
+            return promiseAnimition(3000, "你的身份是：间谍")
+        }).then((data) => {
             this.setData({
-                initMsg:data
+                initMsg: data
             })
             animation.opacity(1).step()
             this.setData({
-                initAnimationData:animation.export()
+                initAnimationData: animation.export()
             })
             return promiseAnimition(3000)
-        }).then((data)=>{
+        }).then((data) => {
             animation.opacity(0).step()
             this.setData({
-                initAnimationData:animation.export()
+                initAnimationData: animation.export()
             })
             teamAnimation.opacity(1).step()
             this.setData({
-                showTeamAnimationData:teamAnimation.export()
+                showTeamAnimationData: teamAnimation.export()
             })
             return promiseAnimition(3000)
-        }).then(()=>{
+        }).then(() => {
             initViewAnimation.opacity(0).step()
             this.setData({
-                initViewAnimationData:initViewAnimation.export()
+                initViewAnimationData: initViewAnimation.export()
             })
             return promiseAnimition(3000)
-        }).then(()=>{
+        }).then(() => {
             this.setData({
-                initMsgShow:true
+                initMsgShow: true
             })
         })
-        
+
     }
 
 }
 
-function promiseAnimition(timeout:number,setData?:any){
-    return new Promise((resolve, reject)=>{
+function promiseAnimition(timeout: number, setData?: any) {
+    return new Promise((resolve, reject) => {
         setTimeout(function() {
             resolve(setData)
         }, timeout);

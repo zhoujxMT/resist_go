@@ -317,6 +317,22 @@ func (room *Room) SendMessage(msg *Message, clientName string) {
 	client.out <- msg
 }
 
+// name ...
+func (room *Room) GetUserList() *Message {
+	room.Lock()
+	defer room.Unlock()
+	roomUserList := []RoomUserInfo{}
+	for cliName, cli := range room.Clients {
+		roomUserInfo := RoomUserInfo{Name: cliName,
+			NickName:  cli.UserInfo.NickName,
+			AvatarUrl: cli.UserInfo.AvatarURL}
+		roomUserList = append(roomUserList, roomUserInfo)
+	}
+	jsonUserInfo, _ := json.Marshal(roomUserList)
+	userListMsg := &Message{From: "SYSTEM", EventName: "GET_USERS", Body: string(jsonUserInfo)}
+	return userListMsg
+}
+
 // ChangeRoomStash ...
 func (room *Room) ChangeRoomStash(stash string) {
 	room.Lock()

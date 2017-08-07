@@ -13,11 +13,10 @@
 </view>
 <view class="game-wait" hidden="{{waitShow}}">
     <view class="game-wait-users">
-        <view class="block"></view>
-        <view class="block"></view>
-        <view class="block"></view>
-        <view class="block"></view>
-        <view class="block"></view>
+        <view wx:for="{{roomUsers}}" class="game-wait-user-box">
+            <image class="wait-user-avatar" src="{{item.avatarUrl}}"></image>
+            <view class="wati-user-name">{{item.nickName}}</view>
+        </view>
     </view>
     <view>分享本页面邀请你的好友进来吧！</view>
     <view class="share-btn"><button type="primary" plain="true">点击分享</button></view>
