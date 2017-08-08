@@ -42,13 +42,19 @@
 
 <!-- 以下皆为通知类box -->
 
-<view class="screen"></view>
+<view class="screen" hidden="{{showScreen}}"></view>
 <!-- 队长通知 -->
-<view class="captain-box">
-    <view class="captain_title"></view>
+<view class="captain-box" animation="{{captainNoticeAnimaData}}" hidden="{{showCaptain}}">
+    <view class="captain_title">队长通知</view>
     <view class="captain_content">
+        <view class="captain-avatar">
+            <view>队长为：</view>
+            <image src="{{captainAvatarUrl}}"></image>
+            <view>{{captainName}}</view>
+        </view>
+
     </view>
-    <view class="btn_ok">知道了</view>
+    <view class="btn_ok" bindtap="{{captainNotice}}">知道了</view>
 </view>
 <!-- 投票通知 -->
 <view class="vote-box">
@@ -76,6 +82,7 @@
             <image src="http://up.qqjia.com/z/face01/face06/facejunyong/junyong02.jpg"></image>
             <view class="choice-user-name">test</view>
             <checkbox></checkbox>
+        </view>
     </checkbox-group>
     <view class="choice-btn">确定</view>
 </view>

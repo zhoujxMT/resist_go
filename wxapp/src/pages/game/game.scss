@@ -164,12 +164,23 @@
 // 队长通知
 .captain-box {
     @include fixedbox; 
-    visibility: hidden;
     .captain_title {
         font-size: 20px;
         text-align: center;
         height: 210rpx;
     }
+    .captain_content{
+        height: 300rpx
+    }
+    .captain-avatar{
+        margin: 0 auto;
+        text-align: center;
+        font-size: 20rpx;
+    }
+    image {
+            height: 150rpx;
+            width: 150rpx
+        }
     .btn_ok {
         padding: 10px;
         font-size: 20px;
@@ -223,6 +234,7 @@
 // 选择choice-team-box
 .choice-team-box{
     @include fixedbox;
+    visibility: hidden;
     .choice_team_title{
         @include notic_title;
     }

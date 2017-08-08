@@ -21,22 +21,33 @@ interface GameData {
     roomUsers: any[] //房间用户列表
     teamList: any[] // 当你为坏人时候你的队友是谁
     isBadMan: boolean
+    captainNoticeAnimaData:any
+    captainName:string
+    captainAvatarUrl:string
+    showCaptain:boolean
+    showScreen:boolean
 }
 
 class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
     gameInfoCache: any = {}
+    captainAnimation:wx.Animation = null
     public data: GameData = {
-        waitShow: true,
+        waitShow: false,
         initAnimationData: {},
         initMsg: "天黑请闭眼",
-        initMsgShow: true,
+        initMsgShow: false,
         showTeamAnimationData: {},
         initViewAnimationData: {},
         waitData: {},
         roomUsers: [],
         teamList: [],
-        isBadMan: false
+        isBadMan: false,
+        captainNoticeAnimaData:{},
+        captainName:"",
+        captainAvatarUrl:"",
+        showCaptain:true,
+        showScreen:true
     }
 
     public onLoad(): void {
@@ -47,6 +58,15 @@ class GamePage implements GamePage {
     public onShow(): void {
         var thirdKey: string = app.getUserThirdKey()
         this.wechatSockets(`ws://localhost:3000/game/testroom/test?thirdKey=${thirdKey}&isWeChat=true`)
+    }
+
+    public captainNotice(event):void{
+        this.captainAnimation.opacity(0).rotateX(-180).step()
+        this.setData({
+            captainNoticeAnimaData:this.captainAnimation.export(),
+            showCaptain:true,
+            showScreen:true
+        })
     }
 
 
@@ -134,6 +154,7 @@ class GamePage implements GamePage {
             isBadMan: roleIsBandman
         })
     }
+
     private waitFinashAnimition(): void {
         var waitAnimation = wx.createAnimation({
             duration: 1500,
@@ -167,11 +188,18 @@ class GamePage implements GamePage {
             duration: 3000,
             timingFunction: 'ease-in'
         })
+        // 队长弹窗动画
+        var captainAnimation = wx.createAnimation({
+            duration:200,
+            timingFunction:"linear"
+        })
+        this.captainAnimation = captainAnimation
         // 初始化动画集合
         animation.opacity(1).step()
         this.setData({
             initAnimationData: animation.export()
         })
+        // 初始动画链
         promiseAnimition(3000).then(() => {
             animation.opacity(0).step()
             this.setData({
@@ -213,6 +241,23 @@ class GamePage implements GamePage {
             this.setData({
                 initMsgShow: true,
                 waitShow: true
+            })
+            return promiseAnimition(1500)
+        }).then(()=>{
+            captainAnimation.opacity(0).rotateX(-100).step()
+            let captain:any= this.userInfoCache[this.gameInfoCache.captain]
+            this.setData({
+                captainNoticeAnimaData:captainAnimation.export(),
+                captainName:captain.nickName,
+                captainAvatarUrl:captain.avatarUrl,
+                showCaptain:false
+            })
+            return promiseAnimition(200)
+        }).then(()=>{
+            this.captainAnimation.opacity(1).rotateX(0).step()
+            this.setData({
+                captainNoticeAnimaData:captainAnimation.export(),
+                showScreen:false
             })
         })
 
