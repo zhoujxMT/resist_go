@@ -1,3 +1,4 @@
+// 游戏主界面
 .game-room {
     display: flex;
     height: 100%;
@@ -36,10 +37,40 @@
 
 @mixin abblock {
     position: absolute;
-    left: 0rpx;
-    top: 0rpx;
-    width: 102%;
+    left: 0;
+    top: 0;
+    width: 100%;
     height: 100%;
+}
+
+@mixin fixedbox{
+    width: 650rpx;
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 1001;
+    background: #FAFAFA;
+    margin: -150px 50rpx 0 50rpx;
+    border-radius: 3px;
+}
+@mixin notic_title{
+    font-size: 20px;
+    text-align: center;
+    height: 210rpx;
+}
+@mixin notic_btn_ok{
+    padding: 10px;
+    font-size: 20px;
+    text-align: center;
+    border-top: 1px solid #E8E8EA;
+    color: #3CC51F;
+}
+@mixin notic_btn_diss{
+    padding: 10px;
+    font-size: 20px;
+    text-align: center;
+    border-top: 1px solid #E8E8EA;
+    color:#FB5660;
 }
 
 @mixin flex-cloumn-center {
@@ -49,6 +80,7 @@
     align-items: center;
 }
 
+// 等待界面
 .game-wait {
     @include abblock;
     @include flex-cloumn-center;
@@ -86,6 +118,7 @@
     margin-top: 250rpx;
 }
 
+// 游戏初始化部分
 .game-init {
     @include flex-cloumn-center;
     @include abblock;
@@ -108,12 +141,132 @@
             display: flex;
             flex-flow: row wrap;
             align-content: flex-start;
-            .game-team-list {
-            }
         }
     }
 }
+
 .team-avatar {
     height: 120rpx;
     width: 120rpx;
+}
+
+//背景蒙皮
+.screen {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background: #000;
+    opacity: 0.5;
+}
+// 队长通知
+.captain-box {
+    @include fixedbox; 
+    visibility: hidden;
+    .captain_title {
+        font-size: 20px;
+        text-align: center;
+        height: 210rpx;
+    }
+    .btn_ok {
+        padding: 10px;
+        font-size: 20px;
+        text-align: center;
+        border-top: 1px solid #E8E8EA;
+        color: #3CC51F;
+    }
+}
+
+// 投票box
+.vote-box{
+    @include fixedbox; 
+    visibility: hidden;
+    .vote_title{
+        @include notic_title;
+    }
+    .vote_btn_ok{
+        padding: 10px;
+        font-size: 20px;
+        text-align: center;
+        border-top: 1px solid #E8E8EA;
+        color: #3CC51F;
+    }
+    .vote_btn_dis{
+        padding: 10px;
+        font-size: 20px;
+        text-align: center;
+        border-top: 1px solid #E8E8EA;
+        color:#FB5660;
+    }
+}
+
+// 发布演讲notice
+.speech-box{
+    @include fixedbox;
+    visibility: hidden;
+    .speech-title{
+        @include notic_title
+    }
+    .specher-area{
+        height: 450rpx;
+        textarea{
+            width: 80%;
+            margin: 0 auto;
+        }
+    }
+    .speech-btn{
+        @include notic_btn_ok
+    }
+}
+// 选择choice-team-box
+.choice-team-box{
+    @include fixedbox;
+    .choice_team_title{
+        @include notic_title;
+    }
+    .choice-content{
+        height: 500rpx;
+        display: flex;
+        flex-flow: row wrap;
+    }
+    .choice-user-list{
+        margin-left: 20rpx;
+        margin-bottom: 10rpx
+    }
+    .choice-user-name{
+            text-align: center
+        }
+    image{
+        height: 100rpx;
+        width: 100rpx;
+    }
+    .choice-btn{
+        @include notic_btn_ok;
+    }
+}
+// 通知被选择人员
+.choiced-list-box{
+    @include fixedbox;
+    visibility: hidden;
+    .choiced-list-title{
+        @include notic_title;
+    }
+    .choiced-content{
+        height: 300rpx;
+        display: flex;
+        .game-team-list{
+            margin-left: 20rpx;
+            font-size: 20rpx;
+            text-align: center;
+        }
+        image{
+            height: 150rpx;
+            width: 150rpx
+        }
+    }
+    .choiced-btn{
+        @include notic_btn_ok
+    }
 }

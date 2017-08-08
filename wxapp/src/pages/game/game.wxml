@@ -1,3 +1,4 @@
+<!-- 聊天主界面 -->
 <view class="game-room">
     <view class="game-users">
         <view class="captain"></view>
@@ -11,6 +12,8 @@
         <button type="primary" size="mini" plain="true">发送</button>
     </view>
 </view>
+
+<!-- 游戏等待界面 -->
 <view class="game-wait" hidden="{{waitShow}}" animation="{{waitData}}">
     <view class="game-wait-users">
         <view wx:for="{{roomUsers}}" class="game-wait-user-box">
@@ -22,6 +25,7 @@
     <view class="share-btn"><button type="primary" plain="true">点击分享</button></view>
 </view>
 
+<!-- 游戏初始化view -->
 <view class="game-init" hidden="{{initMsgShow}}" animation="{{initViewAnimationData}}">
     <view class="init-msg-show" animation="{{initAnimationData}}">{{ initMsg }}</view>
     <view class="team-show" animation="{{showTeamAnimationData}}">
@@ -30,9 +34,59 @@
         <view class="team-wraper">
             <view wx:for="{{teamList}}" class="game-team-list">
                 <image class="team-avatar" src="{{item.avatarUrl}}"></image>
-                <view team-user-name>{{item.nickName}}</view>
+                <view>{{item.nickName}}</view>
             </view>
         </view>
+    </view>
+</view>
+
+<!-- 以下皆为通知类box -->
+
+<view class="screen"></view>
+<!-- 队长通知 -->
+<view class="captain-box">
+    <view class="captain_title"></view>
+    <view class="captain_content">
+    </view>
+    <view class="btn_ok">知道了</view>
+</view>
+<!-- 投票通知 -->
+<view class="vote-box">
+    <view class="vote_title">投票</view>
+    <view class="vote_content">
 
     </view>
+    <view class="vote_btn_ok">赞成</view>
+    <view class="vote_btn_dis">反对</view>
+</view>
+<!-- 演讲弹窗 -->
+<view class="speech-box">
+    <view class="speech-title">发布演讲</view>
+    <view class="specher-area">
+        <textarea fixed="true" maxlength="400">
+        </textarea>
+    </view>
+    <view class="speech-btn">发表</view>
+</view>
+<!-- 选人弹窗 -->
+<view class="choice-team-box">
+    <view class="choice_team_title">选择执行任务队员</view>
+    <checkbox-group class="choice-content">
+        <view class="choice-user-list">
+            <image src="http://up.qqjia.com/z/face01/face06/facejunyong/junyong02.jpg"></image>
+            <view class="choice-user-name">test</view>
+            <checkbox></checkbox>
+    </checkbox-group>
+    <view class="choice-btn">确定</view>
+</view>
+<!-- 通知被选人名单 -->
+<view class="choiced-list-box">
+    <view class="choiced-list-title">以下这些队员将参加任务</view>
+    <view class="choiced-content">
+        <view class="game-team-list">
+            <image src="http://up.qqjia.com/z/face01/face06/facejunyong/junyong02.jpg"></image>
+            <view class="team-user-name">test</view>
+        </view>
+    </view>
+    <view class="choiced-btn">知道了</view>
 </view>

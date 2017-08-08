@@ -27,10 +27,10 @@ class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
     gameInfoCache: any = {}
     public data: GameData = {
-        waitShow: false,
+        waitShow: true,
         initAnimationData: {},
         initMsg: "天黑请闭眼",
-        initMsgShow: false,
+        initMsgShow: true,
         showTeamAnimationData: {},
         initViewAnimationData: {},
         waitData: {},
