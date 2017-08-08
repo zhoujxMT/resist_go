@@ -25,10 +25,14 @@
 <view class="game-init" hidden="{{initMsgShow}}" animation="{{initViewAnimationData}}">
     <view class="init-msg-show" animation="{{initAnimationData}}">{{ initMsg }}</view>
     <view class="team-show" animation="{{showTeamAnimationData}}">
-        <view>你的队友是.....</view>
-        <view wx:for="{{teamList}}" class="game-team-list">
-            <image src="{{item.avatarUrl}}"></image>
-            <view team-user-name>{{item.nickName}}</view>
+        <view wx:if="{{isBadMan}}">这是你的队友，破坏他们任务!</view>
+        <view wx:else>任何人都有可能是间谍，请保证任务成功</view>
+        <view class="team-wraper">
+            <view wx:for="{{teamList}}" class="game-team-list">
+                <image class="team-avatar" src="{{item.avatarUrl}}"></image>
+                <view team-user-name>{{item.nickName}}</view>
+            </view>
         </view>
+
     </view>
 </view>

@@ -20,12 +20,12 @@ interface GameData {
     waitData: any
     roomUsers: any[] //房间用户列表
     teamList: any[] // 当你为坏人时候你的队友是谁
-    isBadMan:boolean
+    isBadMan: boolean
 }
 
 class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
-    gameInfoCache:any = {}
+    gameInfoCache: any = {}
     public data: GameData = {
         waitShow: false,
         initAnimationData: {},
@@ -35,8 +35,8 @@ class GamePage implements GamePage {
         initViewAnimationData: {},
         waitData: {},
         roomUsers: [],
-        teamList:[],
-        isBadMan:false
+        teamList: [],
+        isBadMan: false
     }
 
     public onLoad(): void {
@@ -99,33 +99,40 @@ class GamePage implements GamePage {
                 this.initAnimition()
                 break;
             case "INIT":
-                let initInfo = JSON.parse(msg.body)
-                this.gameInfoCache.captain = initInfo.captain
-                this.gameInfoCache.teamList = initInfo.teamList
-                this.gameInfoCache.role = initInfo.role
-                this.gameInfoCache.speecher = initInfo.speecher
-                let badManteamList:any[] = []
-                if (initInfo.role == "BADMAN"){
-                    for(var teamName of initInfo.teamList){
-                        let teamUser = this.userInfoCache[teamName]
-                        console.log(teamUser)
-                        badManteamList.push({
-                            nickName:teamUser.nickName,
-                            avatarUrl:teamUser.avatarUrl
-                        })
-                    }
-                }
-                this.setData({
-                    teamList:badManteamList
-                })
-                console.log(this.gameInfoCache)
-            //开始结束等待的界面
-            // this.waitFinashAnimition()
-            //开始初始化信息的界面
-            // this.initAnimition()
+                this._onInit(msg)
+
             default:
                 break;
         }
+    }
+
+    private _onInit(msg: any): void {
+        let initInfo = JSON.parse(msg.body)
+        this.gameInfoCache.captain = initInfo.captain
+        this.gameInfoCache.teamList = initInfo.teamList
+        this.gameInfoCache.role = initInfo.role
+        this.gameInfoCache.speecher = initInfo.speecher
+        let badManteamList: any[] = []
+        if (initInfo.role == "BADMAN") {
+            for (var teamName of initInfo.teamList) {
+                let teamUser = this.userInfoCache[teamName]
+                console.log(teamUser)
+                badManteamList.push({
+                    nickName: teamUser.nickName,
+                    avatarUrl: teamUser.avatarUrl
+                })
+            }
+        }
+        let roleIsBandman: boolean
+        if (initInfo.role == "BADMAN") {
+            roleIsBandman = true
+        } else {
+            roleIsBandman = false
+        }
+        this.setData({
+            teamList: badManteamList,
+            isBadMan: roleIsBandman
+        })
     }
     private waitFinashAnimition(): void {
         var waitAnimation = wx.createAnimation({
@@ -136,9 +143,9 @@ class GamePage implements GamePage {
         this.setData({
             waitData: waitAnimation.export()
         })
-        promiseAnimition(1500).then(()=>{
+        promiseAnimition(1500).then(() => {
             this.setData({
-                waitShow:true
+                waitShow: true
             })
         })
 
@@ -170,11 +177,11 @@ class GamePage implements GamePage {
             this.setData({
                 initAnimationData: animation.export()
             })
-            let role:string = ""
-            if (this.gameInfoCache.role == "GOODMAN"){
-                role="抵抗组织"
-            }else{
-                role="间谍"
+            let role: string = ""
+            if (this.gameInfoCache.role == "GOODMAN") {
+                role = "抵抗组织"
+            } else {
+                role = "间谍"
             }
             return promiseAnimition(3000, `你的身份是：${role}`)
         }).then((data) => {
@@ -204,8 +211,8 @@ class GamePage implements GamePage {
             return promiseAnimition(3000)
         }).then(() => {
             this.setData({
-                // initMsgShow: true,
-                waitShow:true
+                initMsgShow: true,
+                waitShow: true
             })
         })
 
@@ -215,7 +222,7 @@ class GamePage implements GamePage {
 
 function promiseAnimition(timeout: number, setData?: any) {
     return new Promise((resolve, reject) => {
-        setTimeout(function() {
+        setTimeout(function () {
             resolve(setData)
         }, timeout);
     })

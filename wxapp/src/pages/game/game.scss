@@ -99,20 +99,21 @@
         opacity: 0;
     }
     .team-show {
-        height: 20%;
+        @include flex-cloumn-center;
+        display: flex;
         text-align: center;
         width: 80%;
         opacity: 0;
-        .team-warper {
-            @include flex-cloumn-center;
+        .team-wraper {
+            display: flex;
+            flex-flow: row wrap;
+            align-content: flex-start;
             .game-team-list {
-                image {
-                    height: 120rpx;
-                    width: 120rpx;
-                }
-                display: flex;
-                align-items: center;
             }
         }
     }
+}
+.team-avatar {
+    height: 120rpx;
+    width: 120rpx;
 }
