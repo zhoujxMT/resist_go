@@ -100,7 +100,7 @@ class GamePage implements GamePage {
                 break;
             case "INIT":
                 this._onInit(msg)
-
+                break;
             default:
                 break;
         }
