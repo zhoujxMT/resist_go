@@ -61,6 +61,7 @@ class GamePage implements GamePage {
     }
 
     public captainNotice(event):void{
+        console.log("？？？？？？？？？？？？")
         this.captainAnimation.opacity(0).rotateX(-180).step()
         this.setData({
             captainNoticeAnimaData:this.captainAnimation.export(),

@@ -54,7 +54,7 @@
         </view>
 
     </view>
-    <view class="btn_ok" bindtap="{{captainNotice}}">知道了</view>
+    <view class="btn_ok" bindtap="captainNotice">知道了</view>
 </view>
 <!-- 投票通知 -->
 <view class="vote-box">
