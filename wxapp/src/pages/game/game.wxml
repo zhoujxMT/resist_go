@@ -45,10 +45,9 @@
 <view class="screen" hidden="{{showScreen}}"></view>
 <!-- 队长通知 -->
 <view class="captain-box" animation="{{captainNoticeAnimaData}}" hidden="{{showCaptain}}">
-    <view class="captain_title">队长通知</view>
+    <view class="captain_title">当局队长为</view>
     <view class="captain_content">
         <view class="captain-avatar">
-            <view>队长为：</view>
             <image src="{{captainAvatarUrl}}"></image>
             <view>{{captainName}}</view>
         </view>
@@ -66,16 +65,16 @@
     <view class="vote_btn_dis">反对</view>
 </view>
 <!-- 演讲弹窗 -->
-<view class="speech-box">
+<view class="speech-box" hidden="{{hiddenSpeech}}" animation="{{speecherNoticeAnimaData}}">
     <view class="speech-title">发布演讲</view>
     <view class="specher-area">
         <textarea fixed="true" maxlength="400">
         </textarea>
     </view>
-    <view class="speech-btn">发表</view>
+    <view class="speech-btn" bindtap="speechNotice">发表</view>
 </view>
 <!-- 选人弹窗 -->
-<view class="choice-team-box">
+<view class="choice-team-box" hidden="{{hiddenChoice}}">
     <view class="choice_team_title">选择执行任务队员</view>
     <checkbox-group class="choice-content">
         <view class="choice-user-list">

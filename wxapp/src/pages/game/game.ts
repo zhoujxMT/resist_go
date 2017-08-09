@@ -24,14 +24,21 @@ interface GameData {
     captainNoticeAnimaData:any
     captainName:string
     captainAvatarUrl:string
+    speecherNoticeAnimaData:any
+    choiceNoticeAnimaData:any
+    choiceUserlist:any
     showCaptain:boolean
     showScreen:boolean
+    hiddenSpeech:boolean
+    hiddenChoice:boolean
 }
 
 class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
     gameInfoCache: any = {}
     captainAnimation:wx.Animation = null
+
+
     public data: GameData = {
         waitShow: false,
         initAnimationData: {},
@@ -46,8 +53,13 @@ class GamePage implements GamePage {
         captainNoticeAnimaData:{},
         captainName:"",
         captainAvatarUrl:"",
+        speecherNoticeAnimaData:{},
+        choiceNoticeAnimaData:{},
+        choiceUserlist:[],
         showCaptain:true,
-        showScreen:true
+        showScreen:true,
+        hiddenSpeech:true,
+        hiddenChoice:true
     }
 
     public onLoad(): void {
@@ -61,7 +73,6 @@ class GamePage implements GamePage {
     }
 
     public captainNotice(event):void{
-        console.log("？？？？？？？？？？？？")
         this.captainAnimation.opacity(0).rotateX(-180).step()
         this.setData({
             captainNoticeAnimaData:this.captainAnimation.export(),
@@ -129,6 +140,7 @@ class GamePage implements GamePage {
 
     private _onInit(msg: any): void {
         let initInfo = JSON.parse(msg.body)
+        let userList = []
         this.gameInfoCache.captain = initInfo.captain
         this.gameInfoCache.teamList = initInfo.teamList
         this.gameInfoCache.role = initInfo.role
@@ -144,6 +156,9 @@ class GamePage implements GamePage {
                 })
             }
         }
+        for (var v in this.userInfoCache){
+            userList.push(this.userInfoCache[v])
+        }
         let roleIsBandman: boolean
         if (initInfo.role == "BADMAN") {
             roleIsBandman = true
@@ -152,7 +167,8 @@ class GamePage implements GamePage {
         }
         this.setData({
             teamList: badManteamList,
-            isBadMan: roleIsBandman
+            isBadMan: roleIsBandman,
+            choiceUserlist:userList
         })
     }
 

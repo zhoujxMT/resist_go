@@ -216,7 +216,6 @@
 // 发布演讲notice
 .speech-box{
     @include fixedbox;
-    visibility: hidden;
     .speech-title{
         @include notic_title
     }
