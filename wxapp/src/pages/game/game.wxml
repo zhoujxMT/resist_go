@@ -86,13 +86,13 @@
     <view class="choice-btn" bindtap="onChoiceBtn">确定</view>
 </view>
 <!-- 通知被选人名单 -->
-<view class="choiced-list-box">
+<view class="choiced-list-box" hidden="{{hiddenChoiced}}">
     <view class="choiced-list-title">以下这些队员将参加任务</view>
     <view class="choiced-content">
-        <view class="game-team-list">
-            <image src="http://up.qqjia.com/z/face01/face06/facejunyong/junyong02.jpg"></image>
-            <view class="team-user-name">test</view>
+        <view class="game-team-list" wx:for="{{choicedUserList}}">
+            <image src="{{item.avatarUrl}}"></image>
+            <view class="team-user-name">{{item.nickName}}</view>
         </view>
     </view>
-    <view class="choiced-btn">知道了</view>
+    <view class="choiced-btn" bindtap="onChoicedBtn">知道了</view>
 </view>

@@ -29,6 +29,9 @@ interface GameData {
     teamSize:number
     choiceUserlist:any[]
     choiceUserDis:boolean
+    choicedUserList:any[]
+    choicedAnimationData:any
+    hiddenChoiced:boolean
     showCaptain:boolean
     showScreen:boolean
     hiddenSpeech:boolean
@@ -41,6 +44,7 @@ class GamePage implements GamePage {
     captainAnimation:wx.Animation = null
     choiceAnimation:wx.Animation = null
     choicedUserIds:any[] = []
+    choicedUserAnimation:wx.Animation = null
 
     public data: GameData = {
         waitShow: false,
@@ -60,7 +64,10 @@ class GamePage implements GamePage {
         teamSize:0,
         choiceNoticeAnimaData:{},
         choiceUserlist:[],
+        choicedUserList:[],
+        choicedAnimationData:{},
         choiceUserDis:true,
+        hiddenChoiced:true,
         showCaptain:true,
         showScreen:true,
         hiddenSpeech:true,
@@ -133,6 +140,14 @@ class GamePage implements GamePage {
         })
     }
 
+    public onChoicedBtn(event):void{
+        this.choicedUserAnimation.opacity(0).rotate(-180).step()
+        this.setData({
+            choicedAnimationData:this.choicedUserAnimation.export(),
+            hiddenChoiced:true
+        })
+    }
+
 
     private wechatSockets(wss: string): void {
         wx.connectSocket({
@@ -183,9 +198,39 @@ class GamePage implements GamePage {
             case "INIT":
                 this._onInit(msg)
                 break;
+            case "CHOICE_TEAM":
+                this._onChoiceTeam(msg)
+                break;
             default:
                 break;
         }
+    }
+
+    private _onChoiceTeam(msg:any):void{
+        let choicedAnimation = wx.createAnimation({
+            duration:200,
+            timingFunction:"linear"
+        })
+        this.choicedUserAnimation = choicedAnimation
+        let choicedUserList = []
+        let team = JSON.parse(msg.body)
+        for (let t of team.teamList){
+            choicedUserList.push(this.userInfoCache[t])
+        }
+        console.log(choicedUserList)
+        this.choicedUserAnimation.opacity(0).rotateX(-100).step()
+        this.setData({
+            choicedAnimationData:this.choicedUserAnimation.export(),
+            choicedUserList:choicedUserList,
+            hiddenChoice:true
+        })
+        promiseAnimition(200).then(()=>{
+            this.choicedUserAnimation.opacity(1).rotateX(0).step()
+            this.setData({
+                choicedAnimationData:this.choicedUserAnimation.export(),
+                hiddenChoiced:false
+            })
+        })
     }
 
     private _onInit(msg: any): void {

@@ -259,7 +259,6 @@
 // 通知被选择人员
 .choiced-list-box{
     @include fixedbox;
-    visibility: hidden;
     .choiced-list-title{
         @include notic_title;
     }
