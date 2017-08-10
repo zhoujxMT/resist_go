@@ -3,9 +3,9 @@ package handle
 import (
 	"container/list"
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"sync"
-	"fmt"
 )
 
 type InitInfo struct {
@@ -13,6 +13,7 @@ type InitInfo struct {
 	Captain  string   `json:"captain"`
 	TeamList []string `json:"teamList"`
 	Speecher string   `json:"speecher"`
+	teamSize int      `json:"teamSize"`
 }
 
 type Room struct {
@@ -62,7 +63,7 @@ func (room *Room) InitRoomGame() {
 	captaignsName, _ := room.TakeRandCaptains()
 	speecher := room.TurnsTalkList.Front()
 	room.TurnsTalkList.MoveToBack(speecher)
-
+	// teamSize
 	badManList := []string{}
 	// 分配坏蛋
 	clientList := room.ClientNameList()
@@ -77,13 +78,13 @@ func (room *Room) InitRoomGame() {
 		isbadMan := isBadMan(cliName, badManList)
 		if isbadMan == true {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			initInfo := &InitInfo{"BADMAN", captaignsName, badManList, speecher.Value.(string)}
+			initInfo := &InitInfo{"BADMAN", captaignsName, badManList, speecher.Value.(string), 2}
 			body, _ := json.Marshal(initInfo)
 			msg.Body = string(body)
 			cli.out <- msg
 		} else {
 			msg := &Message{From: "SYSTEM", EventName: "INIT"}
-			initInfo := &InitInfo{Role: "GOODMAN", Captain: captaignsName, Speecher: speecher.Value.(string)}
+			initInfo := &InitInfo{Role: "GOODMAN", Captain: captaignsName, Speecher: speecher.Value.(string), teamSize: 2}
 			body, _ := json.Marshal(initInfo)
 			msg.Body = string(body)
 			cli.out <- msg

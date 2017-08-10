@@ -62,7 +62,7 @@
 
     </view>
     <view class="vote_btn_ok">赞成</view>
-    <view class="vote_btn_dis">反对</view>
+    <view class="vote_btn_dis" wx:if="{{isBadMan}}">反对</view>
 </view>
 <!-- 演讲弹窗 -->
 <view class="speech-box" hidden="{{hiddenSpeech}}" animation="{{speecherNoticeAnimaData}}">
@@ -75,15 +75,15 @@
 </view>
 <!-- 选人弹窗 -->
 <view class="choice-team-box" hidden="{{hiddenChoice}}" animation="{{choiceAnimaData}}">
-    <view class="choice_team_title">选择执行任务队员</view>
-    <checkbox-group class="choice-content">
+    <view class="choice_team_title">选择执行任务队员 当局可选人数为：{{teamSize}}</view>
+    <checkbox-group class="choice-content" bindchange="onChoiceTeamChange">
         <view class="choice-user-list" wx:for="{{choiceUserlist}}">
             <image src="{{item.avatarUrl}}"></image>
             <view class="choice-user-name">{{item.nickName}}</view>
-            <checkbox></checkbox>
+            <checkbox value="{{item.name}}"></checkbox>
         </view>
     </checkbox-group>
-    <view class="choice-btn" bindtap="choiceNotice">确定</view>
+    <view class="choice-btn" bindtap="onChoiceBtn">确定</view>
 </view>
 <!-- 通知被选人名单 -->
 <view class="choiced-list-box">

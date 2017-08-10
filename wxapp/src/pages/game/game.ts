@@ -26,7 +26,9 @@ interface GameData {
     captainAvatarUrl:string
     speecherNoticeAnimaData:any
     choiceNoticeAnimaData:any
+    teamSize:number
     choiceUserlist:any[]
+    choiceUserDis:boolean
     showCaptain:boolean
     showScreen:boolean
     hiddenSpeech:boolean
@@ -38,7 +40,7 @@ class GamePage implements GamePage {
     gameInfoCache: any = {}
     captainAnimation:wx.Animation = null
     choiceAnimation:wx.Animation = null
-
+    choicedUserIds:any[] = []
 
     public data: GameData = {
         waitShow: false,
@@ -55,8 +57,10 @@ class GamePage implements GamePage {
         captainName:"",
         captainAvatarUrl:"",
         speecherNoticeAnimaData:{},
+        teamSize:0,
         choiceNoticeAnimaData:{},
         choiceUserlist:[],
+        choiceUserDis:true,
         showCaptain:true,
         showScreen:true,
         hiddenSpeech:true,
@@ -71,6 +75,40 @@ class GamePage implements GamePage {
     public onShow(): void {
         var thirdKey: string = app.getUserThirdKey()
         this.wechatSockets(`ws://localhost:3000/game/testroom/test?thirdKey=${thirdKey}&isWeChat=true`)
+    }
+
+    public onChoiceTeamChange(event):void{
+        if(event.detail.value.length !=this.gameInfoCache.teamSize){
+            this.choicedUserIds = event.detail.value
+        }else{
+            wx.showToast({
+                title: '超过当局队员人数',
+                duration: 1500
+            })
+        }
+    }
+
+    public onChoiceBtn(event):void{
+        if(this.choicedUserIds == this.gameInfoCache.teamSize){
+            let teamBody = {
+                teamList: this.choicedUserIds
+            }
+            let strBody = JSON.stringify(teamBody) 
+            let msg = {
+                from:app.getUserThirdKey,
+                eventName:"TEAM",
+                body:strBody
+            }
+            let strMsg = JSON.stringify(msg)
+            wx.sendSocketMessage({
+                data:strMsg
+            })
+        }else{
+            wx.showToast({
+                title:"超过当局队员人数",
+                duration:1500
+            })
+        }
     }
 
     public captainNotice(event):void{
@@ -126,7 +164,6 @@ class GamePage implements GamePage {
                 for (let u of userInfoList) {
                     this.userInfoCache[u.name] = u
                 }
-                console.log(this.userInfoCache)
                 break;
             case "JOIN":
                 // 加入房间
@@ -138,12 +175,10 @@ class GamePage implements GamePage {
                     roomUsers: users
                 })
                 this.userInfoCache[userInfo.name] = userInfo
-                console.log(this.userInfoCache)
                 break;
             case "READY":
                 this.waitFinashAnimition()
                 this.initAnimition()
-                console.log(this.userInfoCache)
                 break;
             case "INIT":
                 this._onInit(msg)
@@ -166,7 +201,8 @@ class GamePage implements GamePage {
                 console.log(teamUser)
                 badManteamList.push({
                     nickName: teamUser.nickName,
-                    avatarUrl: teamUser.avatarUrl
+                    avatarUrl: teamUser.avatarUrl,
+                    teamSize:2
                 })
             }
         }
