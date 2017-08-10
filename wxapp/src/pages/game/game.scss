@@ -233,7 +233,6 @@
 // 选择choice-team-box
 .choice-team-box{
     @include fixedbox;
-    visibility: hidden;
     .choice_team_title{
         @include notic_title;
     }

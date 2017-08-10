@@ -74,16 +74,16 @@
     <view class="speech-btn" bindtap="speechNotice">发表</view>
 </view>
 <!-- 选人弹窗 -->
-<view class="choice-team-box" hidden="{{hiddenChoice}}">
+<view class="choice-team-box" hidden="{{hiddenChoice}}" animation="{{choiceAnimaData}}">
     <view class="choice_team_title">选择执行任务队员</view>
     <checkbox-group class="choice-content">
-        <view class="choice-user-list">
-            <image src="http://up.qqjia.com/z/face01/face06/facejunyong/junyong02.jpg"></image>
-            <view class="choice-user-name">test</view>
+        <view class="choice-user-list" wx:for="{{choiceUserlist}}">
+            <image src="{{item.avatarUrl}}"></image>
+            <view class="choice-user-name">{{item.nickName}}</view>
             <checkbox></checkbox>
         </view>
     </checkbox-group>
-    <view class="choice-btn">确定</view>
+    <view class="choice-btn" bindtap="choiceNotice">确定</view>
 </view>
 <!-- 通知被选人名单 -->
 <view class="choiced-list-box">

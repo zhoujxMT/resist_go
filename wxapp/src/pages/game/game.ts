@@ -26,7 +26,7 @@ interface GameData {
     captainAvatarUrl:string
     speecherNoticeAnimaData:any
     choiceNoticeAnimaData:any
-    choiceUserlist:any
+    choiceUserlist:any[]
     showCaptain:boolean
     showScreen:boolean
     hiddenSpeech:boolean
@@ -37,6 +37,7 @@ class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
     gameInfoCache: any = {}
     captainAnimation:wx.Animation = null
+    choiceAnimation:wx.Animation = null
 
 
     public data: GameData = {
@@ -78,6 +79,19 @@ class GamePage implements GamePage {
             captainNoticeAnimaData:this.captainAnimation.export(),
             showCaptain:true,
             showScreen:true
+        })
+    }
+
+    public choiceNotice(event):void{
+        this.captainAnimation.opacity(0).rotateX(-180).step()
+        this.setData({
+            choiceNoticeAnimaData:this.captainAnimation.export()
+        })
+        promiseAnimition(200).then(()=>{
+            this.setData({
+                showScreen:true,
+                hiddenChoice:true
+            })
         })
     }
 
@@ -129,6 +143,7 @@ class GamePage implements GamePage {
             case "READY":
                 this.waitFinashAnimition()
                 this.initAnimition()
+                console.log(this.userInfoCache)
                 break;
             case "INIT":
                 this._onInit(msg)
@@ -140,7 +155,6 @@ class GamePage implements GamePage {
 
     private _onInit(msg: any): void {
         let initInfo = JSON.parse(msg.body)
-        let userList = []
         this.gameInfoCache.captain = initInfo.captain
         this.gameInfoCache.teamList = initInfo.teamList
         this.gameInfoCache.role = initInfo.role
@@ -156,9 +170,10 @@ class GamePage implements GamePage {
                 })
             }
         }
+        let userList = []
         for (var v in this.userInfoCache){
             userList.push(this.userInfoCache[v])
-        }
+        }      
         let roleIsBandman: boolean
         if (initInfo.role == "BADMAN") {
             roleIsBandman = true
@@ -211,6 +226,12 @@ class GamePage implements GamePage {
             timingFunction:"linear"
         })
         this.captainAnimation = captainAnimation
+        // 初始选人动画
+        var choiceAnimation = wx.createAnimation({
+            duration:200,
+            timingFunction:"linear"
+        })
+        this.choiceAnimation = choiceAnimation
         // 初始化动画集合
         animation.opacity(1).step()
         this.setData({
@@ -261,7 +282,7 @@ class GamePage implements GamePage {
             })
             return promiseAnimition(1500)
         }).then(()=>{
-            captainAnimation.opacity(0).rotateX(-100).step()
+            this.captainAnimation.opacity(0).rotateX(-100).step()
             let captain:any= this.userInfoCache[this.gameInfoCache.captain]
             this.setData({
                 captainNoticeAnimaData:captainAnimation.export(),
@@ -276,6 +297,42 @@ class GamePage implements GamePage {
                 captainNoticeAnimaData:captainAnimation.export(),
                 showScreen:false
             })
+            return promiseAnimition(1500)
+        }).then(()=>{
+            this.captainAnimation.opacity(0).rotate(-100).step()
+            this.setData({
+                captainNoticeAnimaData:this.captainAnimation.export(),
+
+            })
+            return promiseAnimition(200)
+        }).then(()=>{
+            this.setData({
+                showCaptain:true,
+                showScreen:true
+            })
+            return promiseAnimition(1500)
+        }).then(()=>{
+            if (this.gameInfoCache.captain==app.getUserThirdKey){
+                let userList = []
+                for (var v in this.userInfoCache){
+                    userList.push(this.userInfoCache[v])
+                }
+                this.choiceAnimation.opacity(0).rotateX(-100).step()
+                this.setData({
+                    hiddenChoice:false,
+                    choiceNoticeAnimaData:this.choiceAnimation.export(),
+                })
+                return promiseAnimition(200)
+            }
+
+        }).then(()=>{
+            if (this.gameInfoCache.captain==app.getUserThirdKey){
+                this.choiceAnimation.opacity(1).rotateX(0).step()
+                this.setData({
+                    showScreen:false,
+                    choiceNoticeAnimaData:this.choiceAnimation.export()
+                })
+            }
         })
 
     }
