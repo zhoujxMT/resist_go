@@ -12,9 +12,31 @@
     width: 100%;
     .captain {
         width: 20%;
+        image{
+            height: 100rpx;
+            width: 100rpx;
+        }
     }
     .user-list {
         width: 80%;
+        image{
+            height: 100rpx;
+            width: 100rpx;
+        }
+    }
+}
+
+.msg {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+    img{
+        height: 100rpx;
+        width: 100rpx;
+        margin-right: 10rpx;
+    };
+    .msg-body{
+        flex: 1;
     }
 }
 

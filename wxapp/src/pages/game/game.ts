@@ -36,6 +36,7 @@ interface GameData {
     showScreen:boolean
     hiddenSpeech:boolean
     hiddenChoice:boolean
+    chatList:any[]
 }
 
 class GamePage implements GamePage {
@@ -45,6 +46,7 @@ class GamePage implements GamePage {
     choiceAnimation:wx.Animation = null
     choicedUserIds:any[] = []
     choicedUserAnimation:wx.Animation = null
+    inputMsg:string
 
     public data: GameData = {
         waitShow: false,
@@ -71,7 +73,8 @@ class GamePage implements GamePage {
         showCaptain:true,
         showScreen:true,
         hiddenSpeech:true,
-        hiddenChoice:true
+        hiddenChoice:true,
+        chatList:[]
     }
 
     public onLoad(): void {
@@ -82,6 +85,26 @@ class GamePage implements GamePage {
     public onShow(): void {
         var thirdKey: string = app.getUserThirdKey()
         this.wechatSockets(`ws://localhost:3000/game/testroom/test?thirdKey=${thirdKey}&isWeChat=true`)
+    }
+
+    public sendChat(): void{
+        let inputMsg = this.inputMsg
+        let msg_body = JSON.stringify({
+            message:inputMsg
+        })
+        let strBody = JSON.stringify(msg_body)
+        let msg = {
+            from:app.getUserThirdKey,
+            eventName:"CHAT",
+            body:strBody
+        }
+        wx.sendSocketMessage({
+            data:JSON.stringify(msg)
+        })
+    }
+
+    public onInputMsg(event):void{
+        this.inputMsg = event.detail.value
     }
 
     public onChoiceTeamChange(event):void{
@@ -201,9 +224,44 @@ class GamePage implements GamePage {
             case "CHOICE_TEAM":
                 this._onChoiceTeam(msg)
                 break;
+            case "CHAT":
+                this._onChat(msg)
+                break;
+            case "SPEECHER":
+                this._onSpeecher(msg)
+                break;
             default:
                 break;
         }
+    }
+
+    private _onSpeecher(msg) {
+        let speecher = JSON.parse(msg.body)
+        if (speecher.speecher == app.getUserThirdKey){
+                promiseAnimition(1000*60).then(()=>{
+                    let data = {
+                        from:app.getUserThirdKey(),
+                        eventName:"SPEECH",
+                        body:""
+                        }
+                    wx.sendSocketMessage({
+                        data:JSON.stringify(data)
+                    })
+                })
+        }
+        
+    }
+
+    private _onChat(msg:any):void{
+        let body = JSON.parse(msg.body)
+        let from = msg.from
+        let data:any[] = this.data.chatList
+        let userInfo = this.userInfoCache[from]
+        data.push({
+            nickName:userInfo.nickName,
+            avatarUrl:userInfo.avatarUrl,
+            body:userInfo.body
+        })
     }
 
     private _onChoiceTeam(msg:any):void{
@@ -230,6 +288,19 @@ class GamePage implements GamePage {
                 choicedAnimationData:this.choicedUserAnimation.export(),
                 hiddenChoiced:false
             })
+            return promiseAnimition(1000*60)
+        }).then(()=>{
+            if(this.gameInfoCache.speecher == app.getUserThirdKey){
+                let data = {
+                    from:app.getUserThirdKey(),
+                    eventName:"SPEECH",
+                    body:""
+                }
+                wx.sendSocketMessage({
+                    data:JSON.stringify(data)
+                })
+
+            }
         })
     }
 

@@ -1,17 +1,27 @@
 <!-- 聊天主界面 -->
-<view class="game-room">
+<vie class="game-room">
     <view class="game-users">
-        <view class="captain"></view>
-        <scrool-view class="user-list"></scrool-view>
+        <view class="captain">
+            <image src="{{captainAvatarUrl}}"></image>
+        </view>
+        <scrool-view class="user-list">
+            <view class="game-team-list" wx:for="{{choicedUserList}}">
+                <image src="{{iteam.avatarUrl}}"></image>
+            </view>
+        </scrool-view>
     </view>
     <scroll-view class="game-content" scroll-x="false" scroll-y="true">
-
+        <view class="msg" wx:for="{{chatList}}">
+            <image src="{{item.avatarUrl}}"></image>
+            <view class="msg-name">{{item.nickName}}</view>
+            <view class="msg-body">{{item.body}}</view>
+        </view>
     </scroll-view>
     <view class="game-submit">
         <input placeholder="聊天"></input>
-        <button type="primary" size="mini" plain="true">发送</button>
+        <button type="primary" size="mini" plain="true" bindtap="sendChat" bindinput="onInputMsg">发送</button>
     </view>
-</view>
+</vie>
 
 <!-- 游戏等待界面 -->
 <view class="game-wait" hidden="{{waitShow}}" animation="{{waitData}}">
@@ -57,12 +67,22 @@
 </view>
 <!-- 投票通知 -->
 <view class="vote-box">
-    <view class="vote_title">投票</view>
+    <view class="vote_title">任务能不能成功执行就看你了！</view>
     <view class="vote_content">
 
     </view>
     <view class="vote_btn_ok">赞成</view>
     <view class="vote_btn_dis" wx:if="{{isBadMan}}">反对</view>
+</view>
+
+<view class=cap-vote-box>
+    <view class="vote_title">是否同意执行任务?</view>
+        <view class="vote_content">
+    
+        </view>
+    <view class="vote_btn_ok">赞成</view>
+    <view class="vote_btn_dis" wx:if="{{isBadMan}}">反对</view>
+
 </view>
 <!-- 演讲弹窗 -->
 <view class="speech-box" hidden="{{hiddenSpeech}}" animation="{{speecherNoticeAnimaData}}">
