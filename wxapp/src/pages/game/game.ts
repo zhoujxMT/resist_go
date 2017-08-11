@@ -37,6 +37,8 @@ interface GameData {
     hiddenSpeech: boolean
     hiddenChoice: boolean
     chatList: any[]
+    hiddenCapvote:boolean
+    capVoteAnimaData:any
 }
 
 class GamePage implements GamePage {
@@ -47,6 +49,7 @@ class GamePage implements GamePage {
     choicedUserIds: any[] = []
     choicedUserAnimation: wx.Animation = null
     inputMsg: string
+    capVoteAnimation:wx.Animation = null
 
     public data: GameData = {
         waitShow: false,
@@ -74,7 +77,9 @@ class GamePage implements GamePage {
         showScreen: true,
         hiddenSpeech: true,
         hiddenChoice: true,
-        chatList: []
+        chatList: [],
+        hiddenCapvote:true,
+        capVoteAnimaData:{}
     }
 
     public onLoad(): void {
@@ -230,9 +235,17 @@ class GamePage implements GamePage {
             case "SPEECHER":
                 this._onSpeecher(msg)
                 break;
+            case "CAPVOTE":
+                this._onCapVote(msg)
             default:
                 break;
         }
+    }
+
+    private _onCapVote(msg){
+        this.capVoteAnimation = wx.createAnimation({
+            duration:200
+        })
     }
 
     private _onSpeecher(msg) {
