@@ -21,32 +21,32 @@ interface GameData {
     roomUsers: any[] //房间用户列表
     teamList: any[] // 当你为坏人时候你的队友是谁
     isBadMan: boolean
-    captainNoticeAnimaData:any
-    captainName:string
-    captainAvatarUrl:string
-    speecherNoticeAnimaData:any
-    choiceNoticeAnimaData:any
-    teamSize:number
-    choiceUserlist:any[]
-    choiceUserDis:boolean
-    choicedUserList:any[]
-    choicedAnimationData:any
-    hiddenChoiced:boolean
-    showCaptain:boolean
-    showScreen:boolean
-    hiddenSpeech:boolean
-    hiddenChoice:boolean
-    chatList:any[]
+    captainNoticeAnimaData: any
+    captainName: string
+    captainAvatarUrl: string
+    speecherNoticeAnimaData: any
+    choiceNoticeAnimaData: any
+    teamSize: number
+    choiceUserlist: any[]
+    choiceUserDis: boolean
+    choicedUserList: any[]
+    choicedAnimationData: any
+    hiddenChoiced: boolean
+    showCaptain: boolean
+    showScreen: boolean
+    hiddenSpeech: boolean
+    hiddenChoice: boolean
+    chatList: any[]
 }
 
 class GamePage implements GamePage {
     userInfoCache: { [name: string]: any } = {}
     gameInfoCache: any = {}
-    captainAnimation:wx.Animation = null
-    choiceAnimation:wx.Animation = null
-    choicedUserIds:any[] = []
-    choicedUserAnimation:wx.Animation = null
-    inputMsg:string
+    captainAnimation: wx.Animation = null
+    choiceAnimation: wx.Animation = null
+    choicedUserIds: any[] = []
+    choicedUserAnimation: wx.Animation = null
+    inputMsg: string
 
     public data: GameData = {
         waitShow: false,
@@ -59,22 +59,22 @@ class GamePage implements GamePage {
         roomUsers: [],
         teamList: [],
         isBadMan: false,
-        captainNoticeAnimaData:{},
-        captainName:"",
-        captainAvatarUrl:"",
-        speecherNoticeAnimaData:{},
-        teamSize:0,
-        choiceNoticeAnimaData:{},
-        choiceUserlist:[],
-        choicedUserList:[],
-        choicedAnimationData:{},
-        choiceUserDis:true,
-        hiddenChoiced:true,
-        showCaptain:true,
-        showScreen:true,
-        hiddenSpeech:true,
-        hiddenChoice:true,
-        chatList:[]
+        captainNoticeAnimaData: {},
+        captainName: "",
+        captainAvatarUrl: "",
+        speecherNoticeAnimaData: {},
+        teamSize: 0,
+        choiceNoticeAnimaData: {},
+        choiceUserlist: [],
+        choicedUserList: [],
+        choicedAnimationData: {},
+        choiceUserDis: true,
+        hiddenChoiced: true,
+        showCaptain: true,
+        showScreen: true,
+        hiddenSpeech: true,
+        hiddenChoice: true,
+        chatList: []
     }
 
     public onLoad(): void {
@@ -87,30 +87,30 @@ class GamePage implements GamePage {
         this.wechatSockets(`ws://localhost:3000/game/testroom/test?thirdKey=${thirdKey}&isWeChat=true`)
     }
 
-    public sendChat(): void{
+    public sendChat(): void {
         let inputMsg = this.inputMsg
         let msg_body = JSON.stringify({
-            message:inputMsg
+            message: inputMsg
         })
         let strBody = JSON.stringify(msg_body)
         let msg = {
-            from:app.getUserThirdKey,
-            eventName:"CHAT",
-            body:strBody
+            from: app.getUserThirdKey,
+            eventName: "CHAT",
+            body: strBody
         }
         wx.sendSocketMessage({
-            data:JSON.stringify(msg)
+            data: JSON.stringify(msg)
         })
     }
 
-    public onInputMsg(event):void{
+    public onInputMsg(event): void {
         this.inputMsg = event.detail.value
     }
 
-    public onChoiceTeamChange(event):void{
-        if(event.detail.value.length !=this.gameInfoCache.teamSize){
+    public onChoiceTeamChange(event): void {
+        if (event.detail.value.length != this.gameInfoCache.teamSize) {
             this.choicedUserIds = event.detail.value
-        }else{
+        } else {
             wx.showToast({
                 title: '超过当局队员人数',
                 duration: 1500
@@ -118,56 +118,56 @@ class GamePage implements GamePage {
         }
     }
 
-    public onChoiceBtn(event):void{
-        if(this.choicedUserIds == this.gameInfoCache.teamSize){
+    public onChoiceBtn(event): void {
+        if (this.choicedUserIds == this.gameInfoCache.teamSize) {
             let teamBody = {
                 teamList: this.choicedUserIds
             }
-            let strBody = JSON.stringify(teamBody) 
+            let strBody = JSON.stringify(teamBody)
             let msg = {
-                from:app.getUserThirdKey,
-                eventName:"TEAM",
-                body:strBody
+                from: app.getUserThirdKey,
+                eventName: "TEAM",
+                body: strBody
             }
             let strMsg = JSON.stringify(msg)
             wx.sendSocketMessage({
-                data:strMsg
+                data: strMsg
             })
-        }else{
+        } else {
             wx.showToast({
-                title:"超过当局队员人数",
-                duration:1500
+                title: "超过当局队员人数",
+                duration: 1500
             })
         }
     }
 
-    public captainNotice(event):void{
+    public captainNotice(event): void {
         this.captainAnimation.opacity(0).rotateX(-180).step()
         this.setData({
-            captainNoticeAnimaData:this.captainAnimation.export(),
-            showCaptain:true,
-            showScreen:true
+            captainNoticeAnimaData: this.captainAnimation.export(),
+            showCaptain: true,
+            showScreen: true
         })
     }
 
-    public choiceNotice(event):void{
+    public choiceNotice(event): void {
         this.captainAnimation.opacity(0).rotateX(-180).step()
         this.setData({
-            choiceNoticeAnimaData:this.captainAnimation.export()
+            choiceNoticeAnimaData: this.captainAnimation.export()
         })
-        promiseAnimition(200).then(()=>{
+        promiseAnimition(200).then(() => {
             this.setData({
-                showScreen:true,
-                hiddenChoice:true
+                showScreen: true,
+                hiddenChoice: true
             })
         })
     }
 
-    public onChoicedBtn(event):void{
+    public onChoicedBtn(event): void {
         this.choicedUserAnimation.opacity(0).rotate(-180).step()
         this.setData({
-            choicedAnimationData:this.choicedUserAnimation.export(),
-            hiddenChoiced:true
+            choicedAnimationData: this.choicedUserAnimation.export(),
+            hiddenChoiced: true
         })
     }
 
@@ -237,67 +237,67 @@ class GamePage implements GamePage {
 
     private _onSpeecher(msg) {
         let speecher = JSON.parse(msg.body)
-        if (speecher.speecher == app.getUserThirdKey){
-                promiseAnimition(1000*60).then(()=>{
-                    let data = {
-                        from:app.getUserThirdKey(),
-                        eventName:"SPEECH",
-                        body:""
-                        }
-                    wx.sendSocketMessage({
-                        data:JSON.stringify(data)
-                    })
+        if (speecher.speecher == app.getUserThirdKey) {
+            promiseAnimition(1000 * 60).then(() => {
+                let data = {
+                    from: app.getUserThirdKey(),
+                    eventName: "SPEECH",
+                    body: ""
+                }
+                wx.sendSocketMessage({
+                    data: JSON.stringify(data)
                 })
+            })
         }
-        
+
     }
 
-    private _onChat(msg:any):void{
+    private _onChat(msg: any): void {
         let body = JSON.parse(msg.body)
         let from = msg.from
-        let data:any[] = this.data.chatList
+        let data: any[] = this.data.chatList
         let userInfo = this.userInfoCache[from]
         data.push({
-            nickName:userInfo.nickName,
-            avatarUrl:userInfo.avatarUrl,
-            body:userInfo.body
+            nickName: userInfo.nickName,
+            avatarUrl: userInfo.avatarUrl,
+            body: userInfo.body
         })
     }
 
-    private _onChoiceTeam(msg:any):void{
+    private _onChoiceTeam(msg: any): void {
         let choicedAnimation = wx.createAnimation({
-            duration:200,
-            timingFunction:"linear"
+            duration: 200,
+            timingFunction: "linear"
         })
         this.choicedUserAnimation = choicedAnimation
         let choicedUserList = []
         let team = JSON.parse(msg.body)
-        for (let t of team.teamList){
+        for (let t of team.teamList) {
             choicedUserList.push(this.userInfoCache[t])
         }
         console.log(choicedUserList)
         this.choicedUserAnimation.opacity(0).rotateX(-100).step()
         this.setData({
-            choicedAnimationData:this.choicedUserAnimation.export(),
-            choicedUserList:choicedUserList,
-            hiddenChoice:true
+            choicedAnimationData: this.choicedUserAnimation.export(),
+            choicedUserList: choicedUserList,
+            hiddenChoice: true
         })
-        promiseAnimition(200).then(()=>{
+        promiseAnimition(200).then(() => {
             this.choicedUserAnimation.opacity(1).rotateX(0).step()
             this.setData({
-                choicedAnimationData:this.choicedUserAnimation.export(),
-                hiddenChoiced:false
+                choicedAnimationData: this.choicedUserAnimation.export(),
+                hiddenChoiced: false
             })
-            return promiseAnimition(1000*60)
-        }).then(()=>{
-            if(this.gameInfoCache.speecher == app.getUserThirdKey){
+            return promiseAnimition(1000 * 60)
+        }).then(() => {
+            if (this.gameInfoCache.speecher == app.getUserThirdKey) {
                 let data = {
-                    from:app.getUserThirdKey(),
-                    eventName:"SPEECH",
-                    body:""
+                    from: app.getUserThirdKey(),
+                    eventName: "SPEECH",
+                    body: ""
                 }
                 wx.sendSocketMessage({
-                    data:JSON.stringify(data)
+                    data: JSON.stringify(data)
                 })
 
             }
@@ -318,14 +318,14 @@ class GamePage implements GamePage {
                 badManteamList.push({
                     nickName: teamUser.nickName,
                     avatarUrl: teamUser.avatarUrl,
-                    teamSize:2
+                    teamSize: 2
                 })
             }
         }
         let userList = []
-        for (var v in this.userInfoCache){
+        for (var v in this.userInfoCache) {
             userList.push(this.userInfoCache[v])
-        }      
+        }
         let roleIsBandman: boolean
         if (initInfo.role == "BADMAN") {
             roleIsBandman = true
@@ -335,7 +335,7 @@ class GamePage implements GamePage {
         this.setData({
             teamList: badManteamList,
             isBadMan: roleIsBandman,
-            choiceUserlist:userList
+            choiceUserlist: userList
         })
     }
 
@@ -374,14 +374,14 @@ class GamePage implements GamePage {
         })
         // 队长弹窗动画
         var captainAnimation = wx.createAnimation({
-            duration:200,
-            timingFunction:"linear"
+            duration: 200,
+            timingFunction: "linear"
         })
         this.captainAnimation = captainAnimation
         // 初始选人动画
         var choiceAnimation = wx.createAnimation({
-            duration:200,
-            timingFunction:"linear"
+            duration: 200,
+            timingFunction: "linear"
         })
         this.choiceAnimation = choiceAnimation
         // 初始化动画集合
@@ -433,56 +433,56 @@ class GamePage implements GamePage {
                 waitShow: true
             })
             return promiseAnimition(1500)
-        }).then(()=>{
+        }).then(() => {
             this.captainAnimation.opacity(0).rotateX(-100).step()
-            let captain:any= this.userInfoCache[this.gameInfoCache.captain]
+            let captain: any = this.userInfoCache[this.gameInfoCache.captain]
             this.setData({
-                captainNoticeAnimaData:captainAnimation.export(),
-                captainName:captain.nickName,
-                captainAvatarUrl:captain.avatarUrl,
-                showCaptain:false
+                captainNoticeAnimaData: captainAnimation.export(),
+                captainName: captain.nickName,
+                captainAvatarUrl: captain.avatarUrl,
+                showCaptain: false
             })
             return promiseAnimition(200)
-        }).then(()=>{
+        }).then(() => {
             this.captainAnimation.opacity(1).rotateX(0).step()
             this.setData({
-                captainNoticeAnimaData:captainAnimation.export(),
-                showScreen:false
+                captainNoticeAnimaData: captainAnimation.export(),
+                showScreen: false
             })
             return promiseAnimition(1500)
-        }).then(()=>{
+        }).then(() => {
             this.captainAnimation.opacity(0).rotate(-100).step()
             this.setData({
-                captainNoticeAnimaData:this.captainAnimation.export(),
+                captainNoticeAnimaData: this.captainAnimation.export(),
 
             })
             return promiseAnimition(200)
-        }).then(()=>{
+        }).then(() => {
             this.setData({
-                showCaptain:true,
-                showScreen:true
+                showCaptain: true,
+                showScreen: true
             })
             return promiseAnimition(1500)
-        }).then(()=>{
-            if (this.gameInfoCache.captain==app.getUserThirdKey){
+        }).then(() => {
+            if (this.gameInfoCache.captain == app.getUserThirdKey) {
                 let userList = []
-                for (var v in this.userInfoCache){
+                for (var v in this.userInfoCache) {
                     userList.push(this.userInfoCache[v])
                 }
                 this.choiceAnimation.opacity(0).rotateX(-100).step()
                 this.setData({
-                    hiddenChoice:false,
-                    choiceNoticeAnimaData:this.choiceAnimation.export(),
+                    hiddenChoice: false,
+                    choiceNoticeAnimaData: this.choiceAnimation.export(),
                 })
                 return promiseAnimition(200)
             }
 
-        }).then(()=>{
-            if (this.gameInfoCache.captain==app.getUserThirdKey){
+        }).then(() => {
+            if (this.gameInfoCache.captain == app.getUserThirdKey) {
                 this.choiceAnimation.opacity(1).rotateX(0).step()
                 this.setData({
-                    showScreen:false,
-                    choiceNoticeAnimaData:this.choiceAnimation.export()
+                    showScreen: false,
+                    choiceNoticeAnimaData: this.choiceAnimation.export()
                 })
             }
         })
